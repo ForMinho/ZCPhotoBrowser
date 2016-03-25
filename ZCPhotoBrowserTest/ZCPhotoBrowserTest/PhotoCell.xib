@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="9531" systemVersion="15C50" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES">
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="9529"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="hsF-MG-GFi" customClass="ZCPhotoListCell">
+            <rect key="frame" x="0.0" y="0.0" width="80" height="80"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="80" height="80"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="uQq-c8-lHA">
+                        <rect key="frame" x="0.0" y="0.0" width="80" height="80"/>
+                    </imageView>
+                </subviews>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+            </view>
+            <constraints>
+                <constraint firstItem="uQq-c8-lHA" firstAttribute="top" secondItem="hsF-MG-GFi" secondAttribute="top" id="Ecs-CA-O6B"/>
+                <constraint firstAttribute="bottom" secondItem="uQq-c8-lHA" secondAttribute="bottom" id="RkB-E7-vy7"/>
+                <constraint firstAttribute="trailing" secondItem="uQq-c8-lHA" secondAttribute="trailing" id="lNP-bP-dYw"/>
+                <constraint firstItem="uQq-c8-lHA" firstAttribute="leading" secondItem="hsF-MG-GFi" secondAttribute="leading" id="vut-6v-x68"/>
+            </constraints>
+            <size key="customSize" width="82" height="71"/>
+            <connections>
+                <outlet property="image" destination="uQq-c8-lHA" id="Rch-vb-WCG"/>
+            </connections>
+            <point key="canvasLocation" x="570" y="185.5"/>
+        </collectionViewCell>
+    </objects>
+</document>
