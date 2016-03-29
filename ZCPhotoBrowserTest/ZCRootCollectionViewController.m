@@ -9,5 +9,13 @@
 #import "ZCRootCollectionViewController.h"
 
 @implementation ZCRootCollectionViewController
-
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+//    self.collectionView.decelerationRate = 10;
+}
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+}
 @end

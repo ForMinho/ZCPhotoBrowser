@@ -30,60 +30,20 @@ static char ZCImageAsset;
 }
 - (void) zc_setImageWithAsset:(PHAsset *)asset ImageSize:(CGSize)imageSize contentMode:(PHImageContentMode)contentMode completedHandler:(ZCImageManagerCompletionBlock)handler
 {
-    
     if (!asset) {
         return;
     }
     objc_setAssociatedObject(self, &ZCImageAsset, asset, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    if (asset.mediaSubtypes == PHAssetMediaSubtypePhotoScreenshot || asset.mediaSubtypes == PHAssetMediaSubtypePhotoPanorama) {
-        imageSize = CGSizeMake(imageSize.width / 2, imageSize.height / 2);
-    }
-
-    dispatch_async(ZCImageManager_Image_Queue, ^{
         [[ZCImageManager sharedImageManager] requestImageWithAsset:asset imageSize:imageSize contentMode:contentMode options:nil completeHandler:^(UIImage *image,NSDictionary *info)
          {
              if ([[[self zc_Asset] localIdentifier] isEqualToString:asset.localIdentifier]) {
-                 dispatch_async(dispatch_get_main_queue(), ^{
+                 if (handler) {
+                     handler(image,info);
+                     return ;
+                 }
                      self.image = image;
-                     self.contentMode = UIViewContentModeScaleAspectFill;
-                     if (handler) {
-                         handler(image,info);
-                     }
-  
-                 });
              }
          }];
-
-    });
-    /*
-    dispatch_async(ZCImageManager_Image_Queue, ^{
-        PHImageRequestOptions *options = [[PHImageRequestOptions alloc] init];
-        options.synchronous = YES;
-        options.resizeMode = PHImageRequestOptionsResizeModeExact;
-        options.deliveryMode = PHImageRequestOptionsDeliveryModeFastFormat;
-        
-        [[ZCImageManager sharedImageManager] requestImageWithAsset:asset
-                                                         imageSize:imageSize
-                                                       contentMode:contentMode
-                                                           options:options
-                                                   completeHandler:^(UIImage *image,NSDictionary *info)
-         {
-             dispatch_async(dispatch_get_main_queue(), ^{
-                 if ([[[self zc_Asset] localIdentifier] isEqualToString:asset.localIdentifier]) {
-                     self.image = image;
-                     self.contentMode = UIViewContentModeScaleAspectFill;
-                     if (handler) {
-                         handler(image,info);
-                     }
-
-                 }
-             });
-             
-         }];
-
-    });
-     */
-    
 }
 
 - (CGSize)defaultImageSize

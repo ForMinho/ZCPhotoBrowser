@@ -66,9 +66,9 @@ static CGSize cachingImageSize;
     }];
     
     [self.requestIdArray addObject:@(requestId)];
-    if (cachingImageSize.width != imageSize.width) {
-        cachingImageSize = imageSize;
-    }
+//    if (cachingImageSize.width != imageSize.width) {
+//        cachingImageSize = imageSize;
+//    }
     return requestId;
 }
 - (void)startCachingImage:(NSArray *)assets
@@ -83,9 +83,6 @@ static CGSize cachingImageSize;
 }
 - (void)stopCachingImage:(NSArray *)assets
 {
-//    if ([self stopCachingImageWithAssets:assets]) {
-//        return;
-//    }
     [self.imageManager stopCachingImagesForAssets:assets targetSize:cachingImageSize contentMode:PHImageContentModeAspectFill options:nil];
 }
 - (void)clearCachingImage
