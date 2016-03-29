@@ -18,15 +18,7 @@
         }
         else if([fetchResult.firstObject isKindOfClass:[PHCollection class]] || [fetchResult.firstObject isKindOfClass:[PHAssetCollection class]])
         {
-            ZCPhotoSubCollectionList *list = [ZCPhotoSubCollectionList zcPhotoSubCollectionList];
-            list.collectionList = fetchResult;
-            if (viewController.navigationController) {
-                [viewController.navigationController pushViewController:list animated:YES];
-            }else
-            {
-                [viewController presentViewController:list animated:YES completion:nil];
-            }
-            
+            [ZCJudgeObject jumpToSubCollectionListWithObjects:fetchResult FromViewController:viewController];
         }
     }else if ([objects isKindOfClass:[PHAssetCollection class]])
     {
@@ -40,6 +32,17 @@
 {
     ZCPhotoListCollection *list = [ZCPhotoListCollection zcPhtoListCollection];
     list.fetchResult = result;
+    if (viewController.navigationController) {
+        [viewController.navigationController pushViewController:list animated:YES];
+    }else
+    {
+        [viewController presentViewController:list animated:YES completion:nil];
+    }
+}
++ (void)jumpToSubCollectionListWithObjects:(PHFetchResult *)result FromViewController:(UIViewController *)viewController
+{
+    ZCPhotoSubCollectionList *list = [ZCPhotoSubCollectionList zcPhotoSubCollectionList];
+    list.collectionList = result;
     if (viewController.navigationController) {
         [viewController.navigationController pushViewController:list animated:YES];
     }else

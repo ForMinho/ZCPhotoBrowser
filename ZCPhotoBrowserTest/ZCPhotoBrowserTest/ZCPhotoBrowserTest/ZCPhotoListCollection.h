@@ -7,8 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-
-@interface ZCPhotoListCollection : UICollectionViewController
+@class ZCRootCollectionViewController;
+@interface ZCPhotoListCollection : ZCRootCollectionViewController
 @property (nonatomic , strong) PHFetchResult *fetchResult;
 + (ZCPhotoListCollection *)zcPhtoListCollection;
 @end

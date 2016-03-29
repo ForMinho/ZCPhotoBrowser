@@ -11,6 +11,8 @@
 #import "ViewController.h"
 #import "ZCJudgeObject.h"
 #import "ZCPhotoSubCollectionList.h"
+#import "ZCRootCollectionViewController.h"
 #import "ZCPhotoListCollection.h"
 #import "ZCPhotoListCell.h"
+
 #endif /* ZCPhotoTestHeader_h */
