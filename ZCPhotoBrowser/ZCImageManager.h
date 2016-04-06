@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 @import Photos;
 
-typedef void(^ZCImageManagerCompletionBlock)(UIImage *image,NSDictionary * info);
+typedef void(^ZCImageManagerCompletionBlock)(PHAsset *asset,UIImage *image,NSDictionary * info);
 @interface ZCImageManager : NSObject
 + (ZCImageManager *)sharedImageManager;
 - (PHImageRequestID)requestImageWithAsset:(PHAsset *)asset
@@ -17,9 +17,13 @@ typedef void(^ZCImageManagerCompletionBlock)(UIImage *image,NSDictionary * info)
                   contentMode:(PHImageContentMode)contentMode
                       options:(PHImageRequestOptions *)options
               completeHandler:(ZCImageManagerCompletionBlock)completion;
+- (void)cancelLoadImage:(PHImageRequestID)requestId;
 - (void)stopImageManager;
 - (void)startCachingImage:(NSArray *)assets;
+- (void)startCachingImage:(NSArray *)assets WithSize:(CGSize)imageSize;
 - (void)stopCachingImage:(NSArray *)assets;
+- (void)stopCachingImage:(NSArray *)assets WithSize:(CGSize)imageSize;
+
 - (void)clearCachingImage;
 @end
 

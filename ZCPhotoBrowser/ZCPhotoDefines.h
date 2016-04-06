@@ -10,4 +10,6 @@
 #define ZCPhotoDefines_h
 
 #define ZCImageManager_Image_Queue dispatch_queue_create("com.ZCImageManager_GetImage", DISPATCH_QUEUE_PRIORITY_DEFAULT)
+
+#define ZCPhotoLibrary_Changed     @"com.ZCPhotoLibrary.Changed"
 #endif /* ZCPhotoDefines_h */

@@ -34,14 +34,17 @@ static char ZCImageAsset;
         return;
     }
     objc_setAssociatedObject(self, &ZCImageAsset, asset, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        [[ZCImageManager sharedImageManager] requestImageWithAsset:asset imageSize:imageSize contentMode:contentMode options:nil completeHandler:^(UIImage *image,NSDictionary *info)
+        [[ZCImageManager sharedImageManager] requestImageWithAsset:asset imageSize:imageSize contentMode:contentMode options:nil completeHandler:^(PHAsset *asset,UIImage *image,NSDictionary *info)
          {
-             if ([[[self zc_Asset] localIdentifier] isEqualToString:asset.localIdentifier]) {
-                 if (handler) {
-                     handler(image,info);
-                     return ;
-                 }
-                     self.image = image;
+             if (handler) {
+                  handler(asset,image,info);
+                 return ;
+              }
+             if ([asset.localIdentifier isEqualToString:[[self zc_Asset] localIdentifier]]) {
+                 self.image = image;
+             }else
+             {
+                 image = nil;
              }
          }];
 }

@@ -15,6 +15,6 @@
 #import "ZCPhotoFetch.h"
 #import "PHFetchResult+ZCPhotoFetch.h"
 #import "ZCImageManager.h"
-
+#import "ZCPhotoBaseSetting.h"
 #import "UIImageView+ZCImageManager.h"
 #endif /* ZCPhoto_h */

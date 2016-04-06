@@ -44,11 +44,15 @@ static CGSize cachingImageSize;
     }
     return _requestIdArray;
 }
+- (void)cancelLoadImage:(PHImageRequestID)requestId
+{
+    [self.imageManager cancelImageRequest:requestId];
+}
 - (void)stopImageManager
 {
     for (NSNumber *number in self.requestIdArray) {
         PHImageRequestID requestId = [number intValue];
-        [self.imageManager cancelImageRequest:requestId];
+        [self cancelLoadImage:requestId];
     }
 }
 - (PHImageRequestID)requestImageWithAsset:(PHAsset *)asset
@@ -58,23 +62,30 @@ static CGSize cachingImageSize;
                           completeHandler:(ZCImageManagerCompletionBlock)completion;
 
 {
-    PHImageRequestID requestId = [self.imageManager requestImageForAsset:asset targetSize:imageSize contentMode:contentMode options:options resultHandler:^(UIImage *image,NSDictionary *info){
-        if (completion) {
-            completion(image,info);
-        }
-        [self.requestIdArray removeObject:@(requestId)];
+    CGSize size = imageSize;
+    if ((asset.pixelHeight / asset.pixelWidth ) > 4) {
+        CGFloat scale = [UIScreen mainScreen].scale;
+        size = CGSizeMake(size.width/scale, size.height/2);
+    }
+
+    PHImageRequestID requestId = [self.imageManager requestImageForAsset:asset targetSize:size contentMode:contentMode options:options resultHandler:^(UIImage *image,NSDictionary *info){
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (completion) {
+                completion(asset,image,info);
+            }
+        });
     }];
     
-    [self.requestIdArray addObject:@(requestId)];
-//    if (cachingImageSize.width != imageSize.width) {
-//        cachingImageSize = imageSize;
-//    }
     return requestId;
 }
 - (void)startCachingImage:(NSArray *)assets
 {
-    if (cachingImageSize.width <= 0 ) {
-        cachingImageSize = CGSizeMake(160, 160);
+//    [self startCachingImage:assets WithSize:CGSizeMake(160, 160)];
+}
+- (void)startCachingImage:(NSArray *)assets WithSize:(CGSize)imageSize
+{
+    if (cachingImageSize.width != imageSize.width ) {
+        cachingImageSize = imageSize;
     }
     if ([self stopCachingImageWithAssets:assets]) {
         return;
@@ -83,8 +94,14 @@ static CGSize cachingImageSize;
 }
 - (void)stopCachingImage:(NSArray *)assets
 {
-    [self.imageManager stopCachingImagesForAssets:assets targetSize:cachingImageSize contentMode:PHImageContentModeAspectFill options:nil];
+    [self stopCachingImage:assets WithSize:cachingImageSize];
 }
+
+- (void) stopCachingImage:(NSArray *)assets WithSize:(CGSize)imageSize
+{
+    [self.imageManager stopCachingImagesForAssets:assets targetSize:imageSize contentMode:PHImageContentModeAspectFill options:nil];
+}
+
 - (void)clearCachingImage
 {
     [self.imageManager stopCachingImagesForAllAssets];
@@ -92,7 +109,7 @@ static CGSize cachingImageSize;
 - (void)photoLibraryDidChange:(PHChange *)changeInstance
 {
     NSLog(@"%@",NSStringFromSelector(_cmd));
-    [self clearCachingImage];
+    [[NSNotificationCenter defaultCenter] postNotificationName:ZCPhotoLibrary_Changed object:changeInstance];
 }
 - (PHImageRequestOptions *)options
 {
