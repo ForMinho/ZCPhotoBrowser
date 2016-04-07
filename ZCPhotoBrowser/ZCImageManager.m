@@ -7,7 +7,7 @@
 //
 
 #import "ZCImageManager.h"
-@interface ZCImageManager()<PHPhotoLibraryChangeObserver>
+@interface ZCImageManager() 
 @property (nonatomic, strong) PHCachingImageManager *imageManager;
 @property (nonatomic, strong) NSMutableArray *assetArray;
 @property (nonatomic, strong) NSMutableArray *requestIdArray;
@@ -22,13 +22,11 @@ static CGSize cachingImageSize;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
         imageManager = [[ZCImageManager alloc] init];
-        [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:imageManager];
     });
     return imageManager;
 }
 - (void)dealloc
 {
-    [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
 }
 - (PHImageManager *)imageManager
 {
@@ -105,11 +103,6 @@ static CGSize cachingImageSize;
 - (void)clearCachingImage
 {
     [self.imageManager stopCachingImagesForAllAssets];
-}
-- (void)photoLibraryDidChange:(PHChange *)changeInstance
-{
-    NSLog(@"%@",NSStringFromSelector(_cmd));
-    [[NSNotificationCenter defaultCenter] postNotificationName:ZCPhotoLibrary_Changed object:changeInstance];
 }
 - (PHImageRequestOptions *)options
 {

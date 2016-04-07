@@ -73,7 +73,9 @@ static CGSize imageSizeWithScale;
 }
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    PHAsset *asset = self.fetchResult[indexPath.row];
+//    PHAsset *asset = self.fetchResult[indexPath.row];
+    ZCPhotoViewController *photoViewCon = [ZCPhotoViewController sharedZCPhotoViewController];
+    [self.navigationController pushViewController:photoViewCon animated:YES];
 }
 - (void)dealloc
 {
@@ -177,12 +179,15 @@ static CGSize imageSizeWithScale;
 
     if (fetchResult) {
         dispatch_async(dispatch_get_main_queue(), ^{
-            self.fetchResult = [fetchResult fetchResultAfterChanges];
+           
+/*
+             self.fetchResult = [fetchResult fetchResultAfterChanges];
+            UICollectionView *collectionView = self.collectionView;
             if (fetchResult.hasMoves || !fetchResult.hasIncrementalChanges) {
-                [self.collectionView reloadData];
+                [collectionView reloadData];
             }else
             {
-                [self.collectionView performBatchUpdates:^{
+                [collectionView performBatchUpdates:^{
                     NSIndexSet *removeSet = [fetchResult removedIndexes];
                     if (removeSet.count) {
                         [self.collectionView deleteItemsAtIndexPaths:[self indexPathFromIndex:removeSet WithSection:0]];
@@ -196,6 +201,54 @@ static CGSize imageSizeWithScale;
                         [self.collectionView reloadItemsAtIndexPaths:[self indexPathFromIndex:changedSet WithSection:0]];
                     }
                 }completion:NULL];
+            }
+*/
+            self.fetchResult = [fetchResult fetchResultAfterChanges];
+            UICollectionView *collectionView = self.collectionView;
+            
+            NSArray *deleteIndexPathes, *insertIndexPathes, *reloadIndexPathes;
+            if ([fetchResult hasIncrementalChanges]) {
+                deleteIndexPathes = [self indexPathFromIndex:[fetchResult removedIndexes] WithSection:0];
+                insertIndexPathes = [self indexPathFromIndex:[fetchResult insertedIndexes] WithSection:0];
+                reloadIndexPathes = [self indexPathFromIndex:[fetchResult changedIndexes] WithSection:0];
+                
+                BOOL shouldReload = NO;
+                if (reloadIndexPathes && deleteIndexPathes) {
+                    for (NSIndexPath *reloadPath in reloadIndexPathes) {
+                        if ([deleteIndexPathes containsObject:reloadPath]) {
+                            shouldReload = YES;
+                            break;
+                        }
+                    }
+                    
+                    if (deleteIndexPathes.lastObject && [(NSIndexPath *)deleteIndexPathes.lastObject item]> self.fetchResult.count)
+                    {
+                        shouldReload = YES;
+                    }
+                    if (shouldReload) {
+                        [collectionView reloadData];
+                    }else
+                    {
+                        [collectionView performBatchUpdates:^{
+                            if (deleteIndexPathes) {
+                                [collectionView deleteItemsAtIndexPaths:deleteIndexPathes];
+                            }
+                            if (insertIndexPathes) {
+                                [collectionView insertItemsAtIndexPaths:insertIndexPathes];
+                            }
+                            if (reloadIndexPathes) {
+                                [collectionView reloadItemsAtIndexPaths:reloadIndexPathes];
+                            }
+                        }completion:NULL];
+                    }
+                    
+                    
+                }
+                
+            }
+            else
+            {
+                [collectionView reloadData];
             }
 
 

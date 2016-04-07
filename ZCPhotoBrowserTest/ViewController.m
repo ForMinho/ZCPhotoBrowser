@@ -20,6 +20,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(photoLibraryChangedWithNotification:) name:ZCPhotoLibrary_Changed object:nil];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -38,7 +39,7 @@
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
     }
-    cell.textLabel.text = [NSString stringWithFormat:@"%@(%d)",self.titleArray[indexPath.row],[self.photoArray[indexPath.row] count]];
+    cell.textLabel.text = [NSString stringWithFormat:@"%@(%ld)",self.titleArray[indexPath.row],[self.photoArray[indexPath.row] count]];
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
@@ -69,5 +70,29 @@
         _photoArray = [self.photoManager fetchPhotoArrayWithPhotoType:@[@(ZCPhotoFetchTypeAllPhotos),@(ZCPhotoFetchTypeAlbum),@(ZCPhotoFetchTypeSmartAlbum)]];
     }
     return _photoArray;
+}
+
+#pragma mark -- PhotoLibraryChanged
+- (void)photoLibraryChangedWithNotification:(NSNotification*)notification
+{
+    PHChange *fetchResultChange = notification.object;
+    if (fetchResultChange) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            __block BOOL isChanged = NO;
+            NSMutableArray *changedArray = [self.photoArray mutableCopy];
+            [self.photoArray enumerateObjectsUsingBlock:^(PHFetchResult *result ,NSUInteger idx,BOOL *stop){
+                PHFetchResultChangeDetails *details = [fetchResultChange changeDetailsForFetchResult:result];
+                if (details) {
+                    [changedArray replaceObjectAtIndex:idx withObject:[details fetchResultAfterChanges]];
+                    isChanged = YES;
+                }
+            }];
+            if (isChanged) {
+                self.photoArray = changedArray;
+                [self.tableView reloadData];
+            }
+        });
+        
+    }
 }
 @end

@@ -15,4 +15,6 @@
 #import "ZCPhotoListCollection.h"
 #import "ZCPhotoListCell.h"
 
+#import "ZCPhotoViewController.h"
+#import "ZCScrollView.h"
 #endif /* ZCPhotoTestHeader_h */

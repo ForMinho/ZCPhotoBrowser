@@ -22,6 +22,8 @@
 		AA5319781CA3D1930017B306 /* Photo.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA5319771CA3D1930017B306 /* Photo.storyboard */; };
 		AA53197A1CA3D37D0017B306 /* PhotoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AA5319791CA3D37D0017B306 /* PhotoCell.xib */; };
 		AA53197D1CA3D3FB0017B306 /* ZCPhotoListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = AA53197C1CA3D3FB0017B306 /* ZCPhotoListCell.m */; };
+		AA55F93D1CB4B6E000FE580E /* ZCPhotoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AA55F93C1CB4B6E000FE580E /* ZCPhotoViewController.m */; };
+		AA55F9401CB4BBF200FE580E /* ZCScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = AA55F93F1CB4BBF200FE580E /* ZCScrollView.m */; };
 		AA6575B41CA4D69A00BED2E7 /* ZCImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6575B31CA4D69A00BED2E7 /* ZCImageManager.m */; };
 		AA6575B71CA4D85500BED2E7 /* UIImageView+ZCImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6575B61CA4D85500BED2E7 /* UIImageView+ZCImageManager.m */; };
 		AAD0CCF21CAB75A30031B61E /* ZCPhotoBaseSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = AAD0CCF11CAB75A30031B61E /* ZCPhotoBaseSetting.m */; };
@@ -59,6 +61,10 @@
 		AA5319791CA3D37D0017B306 /* PhotoCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = PhotoCell.xib; sourceTree = "<group>"; };
 		AA53197B1CA3D3FB0017B306 /* ZCPhotoListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCPhotoListCell.h; sourceTree = "<group>"; };
 		AA53197C1CA3D3FB0017B306 /* ZCPhotoListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCPhotoListCell.m; sourceTree = "<group>"; };
+		AA55F93B1CB4B6E000FE580E /* ZCPhotoViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCPhotoViewController.h; sourceTree = "<group>"; };
+		AA55F93C1CB4B6E000FE580E /* ZCPhotoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCPhotoViewController.m; sourceTree = "<group>"; };
+		AA55F93E1CB4BBF200FE580E /* ZCScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCScrollView.h; sourceTree = "<group>"; };
+		AA55F93F1CB4BBF200FE580E /* ZCScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCScrollView.m; sourceTree = "<group>"; };
 		AA6575B21CA4D69A00BED2E7 /* ZCImageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCImageManager.h; sourceTree = "<group>"; };
 		AA6575B31CA4D69A00BED2E7 /* ZCImageManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCImageManager.m; sourceTree = "<group>"; };
 		AA6575B51CA4D85500BED2E7 /* UIImageView+ZCImageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+ZCImageManager.h"; sourceTree = "<group>"; };
@@ -116,6 +122,10 @@
 				AA53196D1CA3CAAB0017B306 /* ZCPhotoListCollection.m */,
 				AA53197B1CA3D3FB0017B306 /* ZCPhotoListCell.h */,
 				AA53197C1CA3D3FB0017B306 /* ZCPhotoListCell.m */,
+				AA55F93B1CB4B6E000FE580E /* ZCPhotoViewController.h */,
+				AA55F93C1CB4B6E000FE580E /* ZCPhotoViewController.m */,
+				AA55F93E1CB4BBF200FE580E /* ZCScrollView.h */,
+				AA55F93F1CB4BBF200FE580E /* ZCScrollView.m */,
 				AA5319521CA38D680017B306 /* Main.storyboard */,
 				AA5319771CA3D1930017B306 /* Photo.storyboard */,
 				AA5319791CA3D37D0017B306 /* PhotoCell.xib */,
@@ -230,6 +240,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA55F9401CB4BBF200FE580E /* ZCScrollView.m in Sources */,
 				AA53196B1CA3C6800017B306 /* PHFetchResult+ZCPhotoFetch.m in Sources */,
 				AA53197D1CA3D3FB0017B306 /* ZCPhotoListCell.m in Sources */,
 				AA5319511CA38D680017B306 /* ViewController.m in Sources */,
@@ -238,6 +249,7 @@
 				AA53196E1CA3CAAB0017B306 /* ZCPhotoListCollection.m in Sources */,
 				AA5319751CA3CCA10017B306 /* ZCJudgeObject.m in Sources */,
 				AA5319671CA3BE590017B306 /* ZCPhotoFetch.m in Sources */,
+				AA55F93D1CB4B6E000FE580E /* ZCPhotoViewController.m in Sources */,
 				AA6575B41CA4D69A00BED2E7 /* ZCImageManager.m in Sources */,
 				AA53194E1CA38D680017B306 /* AppDelegate.m in Sources */,
 				AA6575B71CA4D85500BED2E7 /* UIImageView+ZCImageManager.m in Sources */,

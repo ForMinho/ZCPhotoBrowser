@@ -39,5 +39,39 @@
             </objects>
             <point key="canvasLocation" x="602" y="-715"/>
         </scene>
+        <!--Photo View Controller-->
+        <scene sceneID="Opk-2K-GZr">
+            <objects>
+                <viewController storyboardIdentifier="ZCPhotoViewController" id="MIC-aS-M0X" customClass="ZCPhotoViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="d5V-W0-9st"/>
+                        <viewControllerLayoutGuide type="bottom" id="ocf-1S-mxD"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="oW8-fS-gsz">
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5Y1-tp-uJq" customClass="ZCScrollView">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                                <color key="backgroundColor" red="1" green="0.062072300558302484" blue="0.23959430149122696" alpha="1" colorSpace="calibratedRGB"/>
+                            </scrollView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="5Y1-tp-uJq" secondAttribute="trailing" id="2RL-bl-eQa"/>
+                            <constraint firstItem="5Y1-tp-uJq" firstAttribute="bottom" secondItem="ocf-1S-mxD" secondAttribute="top" id="4RS-XC-cwx"/>
+                            <constraint firstItem="5Y1-tp-uJq" firstAttribute="leading" secondItem="oW8-fS-gsz" secondAttribute="leading" id="Ux4-oQ-hCt"/>
+                            <constraint firstItem="5Y1-tp-uJq" firstAttribute="top" secondItem="oW8-fS-gsz" secondAttribute="top" id="laL-z9-LCO"/>
+                        </constraints>
+                    </view>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina55"/>
+                    <connections>
+                        <outlet property="scrollView" destination="5Y1-tp-uJq" id="8ZD-sj-zjL"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="6qE-wB-kMf" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1340" y="-715"/>
+        </scene>
     </scenes>
 </document>

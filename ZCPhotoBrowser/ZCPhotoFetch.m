@@ -69,6 +69,8 @@
 #pragma mark -- Changes
 - (void)photoLibraryDidChange:(PHChange *)changeInstance
 {
-    
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+    [[NSNotificationCenter defaultCenter] postNotificationName:ZCPhotoLibrary_Changed object:changeInstance];
+
 }
 @end

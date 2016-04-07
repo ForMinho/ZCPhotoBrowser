@@ -8,7 +8,7 @@
 
 #import "ZCPhotoManager.h"
 
-@interface ZCPhotoManager()
+@interface ZCPhotoManager()<PHPhotoLibraryChangeObserver>
 @property (nonatomic, strong) PHImageManager *imageManager;
 @property (nonatomic, strong) ZCPhotoFetch *photoFetch;
 @end
@@ -30,9 +30,13 @@
 {
     self = [super init];
     if (self) {
-        
+        [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     }
     return self;
+}
+- (void)dealloc
+{
+    [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
 }
 
 - (PHImageManager *)imageManager
@@ -80,5 +84,13 @@
         }
     }];
     return photoArray;
+}
+
+#pragma mark --
+- (void)photoLibraryDidChange:(PHChange *)changeInstance
+{
+//    NSLog(@"%@",NSStringFromSelector(_cmd));
+    [[NSNotificationCenter defaultCenter] postNotificationName:ZCPhotoLibrary_Changed object:changeInstance];
+
 }
 @end
