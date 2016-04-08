@@ -9,5 +9,6 @@
 #import <UIKit/UIKit.h>
 
 @interface ZCScrollView : UIScrollView
+@property (nonatomic, strong) UIImage *image;
 
 @end

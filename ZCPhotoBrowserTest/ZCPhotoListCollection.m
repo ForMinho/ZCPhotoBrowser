@@ -11,7 +11,7 @@
 static const CGFloat spacing = 2.f;
 static const int     cellNum = 4;
 static CGSize imageSizeWithScale;
-@interface ZCPhotoListCollection ()
+@interface ZCPhotoListCollection ()<ZCPhotoViewControllerDelegate>
 @property (nonatomic, assign) CGRect  previosPreheatRect;
 @end
 
@@ -75,6 +75,8 @@ static CGSize imageSizeWithScale;
 {
 //    PHAsset *asset = self.fetchResult[indexPath.row];
     ZCPhotoViewController *photoViewCon = [ZCPhotoViewController sharedZCPhotoViewController];
+    photoViewCon.delegate = self;
+    photoViewCon.selectedIndex = indexPath.row;
     [self.navigationController pushViewController:photoViewCon animated:YES];
 }
 - (void)dealloc
@@ -180,29 +182,6 @@ static CGSize imageSizeWithScale;
     if (fetchResult) {
         dispatch_async(dispatch_get_main_queue(), ^{
            
-/*
-             self.fetchResult = [fetchResult fetchResultAfterChanges];
-            UICollectionView *collectionView = self.collectionView;
-            if (fetchResult.hasMoves || !fetchResult.hasIncrementalChanges) {
-                [collectionView reloadData];
-            }else
-            {
-                [collectionView performBatchUpdates:^{
-                    NSIndexSet *removeSet = [fetchResult removedIndexes];
-                    if (removeSet.count) {
-                        [self.collectionView deleteItemsAtIndexPaths:[self indexPathFromIndex:removeSet WithSection:0]];
-                    }
-                    NSIndexSet *insertSet = [fetchResult insertedIndexes];
-                    if (insertSet.count) {
-                        [self.collectionView insertItemsAtIndexPaths:[self indexPathFromIndex:insertSet WithSection:0]];
-                    }
-                    NSIndexSet *changedSet = [fetchResult changedIndexes];
-                    if (changedSet) {
-                        [self.collectionView reloadItemsAtIndexPaths:[self indexPathFromIndex:changedSet WithSection:0]];
-                    }
-                }completion:NULL];
-            }
-*/
             self.fetchResult = [fetchResult fetchResultAfterChanges];
             UICollectionView *collectionView = self.collectionView;
             
@@ -264,5 +243,25 @@ static CGSize imageSizeWithScale;
          [indexPathes addObject:path];
      }];
     return indexPathes;
+}
+
+
+#pragma mark -- ZCPhotoViewControllerDelegate
+- (NSInteger)numberOfPhotosInBrowser:(ZCPhotoViewController *)photoController
+{
+    return [self.fetchResult count];
+}
+- (id)photoBrowser:(ZCPhotoViewController *)viewController atIndexPath:(NSInteger)index
+{
+    if (!self.fetchResult.count) {
+        return nil;
+    }
+    if (index < 0) {
+        index = 0;
+    }
+    if ( index >= [self.fetchResult count]) {
+        index = self.fetchResult.count - 1;
+    }
+    return self.fetchResult[index];
 }
 @end

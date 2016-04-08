@@ -9,13 +9,16 @@
 #import <UIKit/UIKit.h>
 @class ZCPhotoViewController;
 @protocol ZCPhotoViewControllerDelegate <NSObject>
+@required
+- (NSInteger)numberOfPhotosInBrowser:(ZCPhotoViewController *)photoController;
+- (id)photoBrowser:(ZCPhotoViewController *)viewController atIndexPath:(NSInteger)index;
 
-
+@optional
 
 @end
 
 @interface ZCPhotoViewController : UIViewController
-@property (nonatomic, strong) PHFetchResult *fetchResult;
 @property (nonatomic, assign) NSInteger selectedIndex;
+@property (nonatomic, assign) id<ZCPhotoViewControllerDelegate> delegate;
 + (instancetype)sharedZCPhotoViewController;
 @end

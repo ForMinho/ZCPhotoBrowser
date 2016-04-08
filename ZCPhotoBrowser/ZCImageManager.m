@@ -7,7 +7,7 @@
 //
 
 #import "ZCImageManager.h"
-@interface ZCImageManager() 
+@interface ZCImageManager()
 @property (nonatomic, strong) PHCachingImageManager *imageManager;
 @property (nonatomic, strong) NSMutableArray *assetArray;
 @property (nonatomic, strong) NSMutableArray *requestIdArray;
