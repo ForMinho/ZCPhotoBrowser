@@ -70,12 +70,19 @@ static CGSize cachingImageSize;
         dispatch_async(dispatch_get_main_queue(), ^{
             if (completion) {
                 completion(asset,image,info);
+            }else
+            {
+                NSMutableDictionary *imageInfo = [NSMutableDictionary dictionary];
+                [imageInfo setObject:image forKey:ZCPhoto_Loaded_Successed_Image];
+                [imageInfo setObject:asset forKey:ZCPhoto_Loaded_Successed_Asset];
+                [[NSNotificationCenter defaultCenter] postNotificationName:ZCPhoto_Loaded_Successed object:imageInfo];
             }
         });
     }];
     
     return requestId;
 }
+/*
 - (void)startCachingImage:(NSArray *)assets
 {
 //    [self startCachingImage:assets WithSize:CGSizeMake(160, 160)];
@@ -99,7 +106,7 @@ static CGSize cachingImageSize;
 {
     [self.imageManager stopCachingImagesForAssets:assets targetSize:imageSize contentMode:PHImageContentModeAspectFill options:nil];
 }
-
+*/
 - (void)clearCachingImage
 {
     [self.imageManager stopCachingImagesForAllAssets];

@@ -19,10 +19,10 @@ typedef void(^ZCImageManagerCompletionBlock)(PHAsset *asset,UIImage *image,NSDic
               completeHandler:(ZCImageManagerCompletionBlock)completion;
 - (void)cancelLoadImage:(PHImageRequestID)requestId;
 - (void)stopImageManager;
-- (void)startCachingImage:(NSArray *)assets;
-- (void)startCachingImage:(NSArray *)assets WithSize:(CGSize)imageSize;
-- (void)stopCachingImage:(NSArray *)assets;
-- (void)stopCachingImage:(NSArray *)assets WithSize:(CGSize)imageSize;
+//- (void)startCachingImage:(NSArray *)assets;
+//- (void)startCachingImage:(NSArray *)assets WithSize:(CGSize)imageSize;
+//- (void)stopCachingImage:(NSArray *)assets;
+//- (void)stopCachingImage:(NSArray *)assets WithSize:(CGSize)imageSize;
 
 - (void)clearCachingImage;
 @end

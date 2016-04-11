@@ -13,6 +13,14 @@
 
 #define ZCPhotoLibrary_Changed     @"com.ZCPhotoLibrary.Changed"
 
+#define ZCPhoto_Loaded_Successed       @"ZCPhoto.Loaded.Successed"
+#define ZCPhoto_Loaded_Successed_Image @"ZCPhoto.Loaded.Successed.Image"
+#define ZCPhoto_Loaded_Successed_Index @"ZCPhoto.Loaded.Successed.Index"
+#define ZCPhoto_Loaded_Successed_Asset @"ZCPhoto.Loaded.Successed.Asset"
+
+#define ZCPhoto_PHAssetClass   NSClassFromString(@"PHAsset")
+
+
 
 #endif /* ZCPhotoDefines_h */
 

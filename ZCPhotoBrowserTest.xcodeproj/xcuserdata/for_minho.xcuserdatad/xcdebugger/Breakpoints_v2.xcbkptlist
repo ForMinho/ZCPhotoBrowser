@@ -70,65 +70,65 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ZCPhotoBrowserTest/ZCScrollView.m"
-            timestampString = "481799289.722866"
+            timestampString = "482059385.946983"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "111"
-            endingLineNumber = "111"
-            landmarkName = "-layoutSubviews"
+            startingLineNumber = "177"
+            endingLineNumber = "177"
+            landmarkName = "-startLoadingImage"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
-            filePath = "ZCPhotoBrowserTest/ZCPhotoViewController.m"
-            timestampString = "481803454.450876"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "79"
-            endingLineNumber = "79"
-            landmarkName = "-frameForPageAtIndex:"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ZCPhotoBrowserTest/ZCPhotoViewController.m"
-            timestampString = "481803454.450876"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "87"
-            endingLineNumber = "87"
-            landmarkName = "-frameOfScrollView"
-            landmarkType = "5">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "Yes"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "ZCPhotoBrowserTest/ZCPhotoViewController.m"
-            timestampString = "481803552.800513"
+            filePath = "ZCPhotoBrowser/ZCImageManager.m"
+            timestampString = "482058319.688019"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "70"
             endingLineNumber = "70"
-            landmarkName = "-updateImageViewWithImageView:withImage:AtIndex:"
+            landmarkName = "-requestImageWithAsset:imageSize:contentMode:options:completeHandler:"
             landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__86-[ZCImageManager requestImageWithAsset:imageSize:contentMode:options:completeHandler:]_block_invoke"
+                  moduleName = "ZCPhotoBrowserTest"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/for_minho/ZCPhotoBrowser/ZCPhotoBrowser/ZCImageManager.m"
+                  timestampString = "482058488.471259"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "70"
+                  endingLineNumber = "70"
+                  offsetFromSymbolStart = "89">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "__86-[ZCImageManager requestImageWithAsset:imageSize:contentMode:options:completeHandler:]_block_invoke_2"
+                  moduleName = "ZCPhotoBrowserTest"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/for_minho/ZCPhotoBrowser/ZCPhotoBrowser/ZCImageManager.m"
+                  timestampString = "482058488.471565"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "70"
+                  endingLineNumber = "70"
+                  offsetFromSymbolStart = "12">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -138,12 +138,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ZCPhotoBrowserTest/ZCScrollView.m"
-            timestampString = "481803672.098976"
+            timestampString = "482059385.946983"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "67"
-            endingLineNumber = "67"
-            landmarkName = "-setMaxMinZoomScalesForImage"
+            startingLineNumber = "167"
+            endingLineNumber = "167"
+            landmarkName = "-setImageWithNotification:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ZCPhotoBrowserTest/ZCScrollView.m"
+            timestampString = "482059385.946983"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "184"
+            endingLineNumber = "184"
+            landmarkName = "-startLoadingImage"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
@@ -154,12 +170,12 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ZCPhotoBrowserTest/ZCPhotoViewController.m"
-            timestampString = "481803740.599164"
+            timestampString = "482059554.247086"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "75"
-            endingLineNumber = "75"
-            landmarkName = "-updateImageViewWithImageView:withImage:AtIndex:"
+            startingLineNumber = "139"
+            endingLineNumber = "139"
+            landmarkName = "-configuePage:AtIndex:"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>
