@@ -7,7 +7,7 @@
 //
 
 #import "ViewController.h"
-#import "ZCPhoto.h"
+#import "ZCPhotoKit.h"
 @interface ViewController ()
 @property (nonatomic, strong) NSArray *titleArray;
 @property (nonatomic, strong) NSArray *photoArray;
@@ -39,7 +39,7 @@
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
     }
-    cell.textLabel.text = [NSString stringWithFormat:@"%@(%ld)",self.titleArray[indexPath.row],[self.photoArray[indexPath.row] count]];
+    cell.textLabel.text = [NSString stringWithFormat:@"%@(%ld)",self.titleArray[indexPath.row],(unsigned long)[self.photoArray[indexPath.row] count]];
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath

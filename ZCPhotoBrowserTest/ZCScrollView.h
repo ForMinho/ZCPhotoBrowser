@@ -10,7 +10,8 @@
 
 @interface ZCScrollView : UIScrollView
 @property (nonatomic, strong) UIImage *image;
-@property (nonatomic, strong) id photo;
+@property (nonatomic, assign) NSUInteger index;
+@property (nonatomic, strong) ZCPhoto *photo;
 - (void)startLoadingImage;
 - (void)cancleLoadingImage;
 @end

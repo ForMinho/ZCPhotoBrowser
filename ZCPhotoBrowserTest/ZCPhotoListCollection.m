@@ -13,6 +13,7 @@ static const int     cellNum = 4;
 static CGSize imageSizeWithScale;
 @interface ZCPhotoListCollection ()<ZCPhotoViewControllerDelegate>
 @property (nonatomic, assign) CGRect  previosPreheatRect;
+@property (nonatomic, strong) NSMutableArray *photosArray;
 @end
 
 @implementation ZCPhotoListCollection
@@ -39,31 +40,55 @@ static CGSize imageSizeWithScale;
     self.collectionView.collectionViewLayout = layout;
     self.collectionView.backgroundColor = [UIColor whiteColor];
     [self.collectionView registerNib:[UINib nibWithNibName:@"PhotoCell" bundle:nil] forCellWithReuseIdentifier:NSStringFromClass([ZCPhotoListCell class])];
+    [self photosArrayWithFetchResult];
 }
 - (void)viewWillAppear:(BOOL)animated
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(photoLibraryChangedWithNotification:) name:ZCPhotoLibrary_Changed object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadImageCompleteWithNotification:) name:ZCPhoto_Loaded_Successed object:nil];
 }
-- (void)viewDidDisappear:(BOOL)animated
+- (void)viewWillDisappear:(BOOL)animated
 {
-    [super viewDidDisappear:animated];
+    [super viewWillDisappear:animated];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ZCPhotoLibrary_Changed object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ZCPhoto_Loaded_Successed object:nil];
 }
 - (void)didReceiveMemoryWarning
 {
+}
+- (void)photosArrayWithFetchResult
+{
+    if (self.fetchResult && self.fetchResult.count) {
+        if (_photosArray == nil) {
+            _photosArray = [[NSMutableArray alloc] initWithCapacity:self.fetchResult.count];
+        }
+        for (PHAsset *asset in self.fetchResult) {
+            ZCPhoto *photo = [ZCPhoto photoWithAsset:asset ImageSize:imageSizeWithScale];
+            [_photosArray addObject:photo];
+        }
+    }
 }
 
 #pragma mark --- Datas
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return self.fetchResult.count;
+    return [_photosArray count];//self.fetchResult.count;
 }
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     ZCPhotoListCell *cell = (ZCPhotoListCell *)[collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([ZCPhotoListCell class]) forIndexPath:indexPath];
-    PHAsset *asset = self.fetchResult[indexPath.row];
-    cell.cellAsset = asset;
-    cell.localIdentifier = asset.localIdentifier;
-    [cell updatePhotoOnCellWithImageSize:imageSizeWithScale content:PHImageContentModeAspectFill CompleteHandeler:nil];
+    cell.image.image = nil;
+    ZCPhoto *photo = _photosArray[indexPath.row];
+    [cell updatePhotoCellWithPhoto:photo WithImageSize:imageSizeWithScale];
+
+    
+//    PHAsset *asset = self.fetchResult[indexPath.row];
+//    cell.cellAsset = asset;
+//    cell.localIdentifier = asset.localIdentifier;
+//    [cell updatePhotoOnCellWithImageSize:imageSizeWithScale content:PHImageContentModeAspectFill CompleteHandeler:nil];
+
+    
     return cell;
 }
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
@@ -71,9 +96,16 @@ static CGSize imageSizeWithScale;
     ZCPhotoListCell *listCell = (ZCPhotoListCell *)cell;
     [listCell cancelLoadImage];
 }
+- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    if ([self.fetchResult count] > indexPath.row) {
+        PHAsset *asset = self.fetchResult[indexPath.row];
+        ZCPhoto *photo = [ZCPhoto photoWithAsset:asset ImageSize:imageSizeWithScale];
+        [photo loadImageAndNotification];
+    }
+}
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-//    PHAsset *asset = self.fetchResult[indexPath.row];
     ZCPhotoViewController *photoViewCon = [ZCPhotoViewController sharedZCPhotoViewController];
     photoViewCon.delegate = self;
     photoViewCon.selectedIndex = indexPath.row;
@@ -83,96 +115,6 @@ static CGSize imageSizeWithScale;
 {
     NSLog(@"%@---%@",NSStringFromClass([self class]),NSStringFromSelector(_cmd));
 }
-/*
-#pragma mark -- UIScroll
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-}
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
-{
-}
-
-- (void)resetDecelerating
-{
-    decelerationRate = 1.0f;
-    self.collectionView.decelerationRate = decelerationRate;
-}
-- (void)resetAssetedCaching
-{
-    [[ZCImageManager sharedImageManager] clearCachingImage];
-    self.previosPreheatRect = CGRectZero;
-}
-- (void)updateAssetedCaching
-{
-    BOOL isViewDidLoad = [self isViewLoaded] && [[self view]window] != nil;
-    if (!isViewDidLoad) {
-        return;
-    }
-    CGRect preheatRect = self.collectionView.bounds;
-    preheatRect = CGRectInset(preheatRect, 0, - 0.5 * CGRectGetHeight(preheatRect));
-    CGFloat delta = fabs(CGRectGetMidY(preheatRect) - CGRectGetMidY(self.previosPreheatRect));
-    if (delta > CGRectGetHeight(self.collectionView.bounds) ) {
-        [self computeDifferentBetweenRect:preheatRect withOldRect:self.previosPreheatRect removeHandle:^(CGRect rect){
-            
-            [[ZCImageManager sharedImageManager] stopCachingImage:[self assetsWithRect:rect] WithSize:imageSizeWithScale];
-            
-        }addHandler:^(CGRect rect)
-        {
-            [[ZCImageManager sharedImageManager] startCachingImage:[self assetsWithRect:rect] WithSize:imageSizeWithScale];
-            
-        }];
-        self.previosPreheatRect = preheatRect;
-    }
-
-}
-- (void)computeDifferentBetweenRect:(CGRect)newRect withOldRect:(CGRect)oldRect removeHandle:(void (^)(CGRect removeRect))removeHandler addHandler:(void (^)(CGRect addRect)) addHandler
-{
-    if (CGRectIntersectsRect(newRect, oldRect)) {
-        CGFloat newMaxY = CGRectGetMaxY(newRect);
-        CGFloat newMinY = CGRectGetMinY(newRect);
-        CGFloat oldMaxY = CGRectGetMaxY(oldRect);
-        CGFloat oldMinY = CGRectGetMinY(oldRect);
-        if (newMaxY > oldMaxY) {
-            addHandler(CGRectMake(newRect.origin.x, oldMaxY, CGRectGetWidth(newRect), (newMaxY - oldMaxY)));
-        }
-        if (oldMinY > newMinY) {
-            addHandler(CGRectMake(newRect.origin.x, newMinY, newRect.size.width, (oldMinY - newMinY)));
-        }
-        if (newMaxY < oldMaxY) {
-            removeHandler(CGRectMake(newRect.origin.x, newMaxY, newRect.size.width, (oldMaxY - newMaxY)));
-        }
-        if (oldMinY < newMinY) {
-            removeHandler(CGRectMake(newRect.origin.x, oldMinY, newRect.size.width, (newMinY - oldMinY)));
-        }
-
-    }else
-    {
-        removeHandler(oldRect);
-//        addHandler(newRect);
-    }
-    
-}
-- (NSArray *)assetsWithRect:(CGRect)rect
-{
-    NSArray *allLayoutAttributes = [self.collectionViewLayout layoutAttributesForElementsInRect:rect];
-    if (allLayoutAttributes.count == 0 ) {
-        return nil;
-    }
-    NSMutableArray *indexPaths = [NSMutableArray array];
-    for (UICollectionViewLayoutAttributes *attributes in allLayoutAttributes) {
-        [indexPaths addObject:attributes.indexPath];
-    }
-    if (indexPaths.count == 0) {
-        return nil;
-    }
-    
-    NSMutableArray *assets = [NSMutableArray array];
-    for (NSIndexPath *path in indexPaths) {
-        [assets addObject:self.fetchResult[path.row]];
-    }
-    return assets;
-}
- */
 #pragma mark -- LibraryChanged
 - (void)photoLibraryChangedWithNotification:(NSNotification *)notification
 {
@@ -262,6 +204,31 @@ static CGSize imageSizeWithScale;
     if ( index >= [self.fetchResult count]) {
         index = self.fetchResult.count - 1;
     }
-    return self.fetchResult[index];
+    static CGSize imageSize;
+    if (imageSize.width == 0 && imageSize.height == 0) {
+        CGFloat scale = [[UIScreen mainScreen] scale];
+        imageSize.width = CGRectGetWidth(self.view.frame) * scale;
+        imageSize.height = CGRectGetHeight(self.view.frame) * scale;
+    }
+    ZCPhoto *photo = [ZCPhoto photoWithAsset:self.fetchResult[index] ImageSize:imageSize];
+    return photo;
+}
+
+
+#pragma mark -- Notification
+- (void)loadImageCompleteWithNotification:(NSNotification *)notification
+{
+    ZCPhoto *photo = notification.object;
+    BOOL isDisplay = NO;
+    for (ZCPhotoListCell *cell in self.collectionView.visibleCells) {
+        if (cell.photo == photo) {
+            cell.image.image = [photo photoImage];
+            isDisplay = YES;
+            break;
+        }
+    }
+    if (!isDisplay) {
+        [photo cancelLoadImage];
+    }
 }
 @end

@@ -35,6 +35,10 @@
     self.showsHorizontalScrollIndicator = NO;
     self.showsVerticalScrollIndicator = NO;
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(setImageWithNotification:) name:ZCPhoto_Loaded_Successed object:nil];
+    _photoView = [[UIImageView alloc] init];
+    _photoView.backgroundColor = [UIColor whiteColor];
+    [self addSubview:_photoView];
+
 }
 - (void)dealloc
 {
@@ -43,7 +47,7 @@
 - (void)setImage:(UIImage *)image
 {
     _image = image;
-    if (_image.size.width < self.frame.size.width) {
+    if ((_image.size.width < self.frame.size.width) && (image.size.height < self.frame.size.height)) {
         return;
     }
     [self displayImage];
@@ -58,11 +62,6 @@
 }
 - (void)displayImage
 {
-    if (_photoView == nil) {
-        _photoView = [[UIImageView alloc] init];
-        _photoView.backgroundColor = [UIColor whiteColor];
-        [self addSubview:_photoView];
-    }
     if (_image) {
         self.minimumZoomScale = 1;
         self.maximumZoomScale = 1;
@@ -164,32 +163,42 @@
 #pragma  mark --
 - (void)setImageWithNotification:(NSNotification *)notification
 {
-    NSDictionary *dic = notification.object;
-    if (ZCPhoto_PHAssetClass) {
-        PHAsset *asset = (PHAsset *)_photo;
-        if ([asset.localIdentifier isEqualToString:[dic[ZCPhoto_Loaded_Successed_Asset] localIdentifier]]) {
-            self.image = dic[ZCPhoto_Loaded_Successed_Image];
+//    NSDictionary *dic = notification.object;
+//    if (ZCPhoto_PHAssetClass) {
+//        PHAsset *asset = (PHAsset *)_photo;
+//        if ([asset.localIdentifier isEqualToString:[dic[ZCPhoto_Loaded_Successed_Asset] localIdentifier]]) {
+//            self.image = dic[ZCPhoto_Loaded_Successed_Image];
+//        }
+//    }
+    ZCPhoto *objectPhoto = notification.object;
+    if (objectPhoto == _photo) {
+        if ([objectPhoto photoImage]) {
+            self.image = [objectPhoto photoImage];
         }
     }
+    
 }
 - (void)startLoadingImage
 {
-    if (ZCPhoto_PHAssetClass) {
-        PHAsset *asset = (PHAsset *)_photo;
-        CGSize imageSize;
-        imageSize.width = asset.pixelWidth;
-        imageSize.height = asset.pixelHeight;
-        [[ZCImageManager sharedImageManager] requestImageWithAsset:self.photo imageSize:imageSize contentMode:PHImageContentModeAspectFill options:nil completeHandler:^(PHAsset *asset , UIImage * image , NSDictionary *dic)
-         {
-             if ([asset.localIdentifier isEqualToString:[_photo localIdentifier]]) {
-                 self.image = image;
-             }
-         }];
-        
-    }
+//    if (ZCPhoto_PHAssetClass) {
+//        PHAsset *asset = (PHAsset *)_photo;
+//        CGSize imageSize;
+//        imageSize.width = asset.pixelWidth;
+//        imageSize.height = asset.pixelHeight;
+//        [[ZCImageManager sharedImageManager] requestImageWithAsset:self.photo imageSize:imageSize contentMode:PHImageContentModeAspectFill options:nil completeHandler:^(PHAsset *asset , UIImage * image , NSDictionary *dic)
+//         {
+//             if ([asset.localIdentifier isEqualToString:[_photo localIdentifier]]) {
+//                 self.image = image;
+//             }
+//         }];
+//        
+//    }
+
+    [_photo loadImageAndNotification];
+    
 }
 - (void)cancleLoadingImage
 {
-    
+    [_photo cancelLoadImage];
 }
 @end

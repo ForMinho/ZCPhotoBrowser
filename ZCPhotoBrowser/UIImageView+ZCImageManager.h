@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "ZCPhoto.h"
+#import "ZCPhotoKit.h"
 @import Photos;
 @interface UIImageView (ZCImageManager)
 - (PHAsset *)zc_Asset;

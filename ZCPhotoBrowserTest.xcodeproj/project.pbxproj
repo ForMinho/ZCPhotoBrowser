@@ -27,7 +27,7 @@
 		AA6146A71CB78E16004079B5 /* ZCImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6146A61CB78E16004079B5 /* ZCImageView.m */; };
 		AA6575B41CA4D69A00BED2E7 /* ZCImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6575B31CA4D69A00BED2E7 /* ZCImageManager.m */; };
 		AA6575B71CA4D85500BED2E7 /* UIImageView+ZCImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6575B61CA4D85500BED2E7 /* UIImageView+ZCImageManager.m */; };
-		AAD0CCF21CAB75A30031B61E /* ZCPhotoBaseSetting.m in Sources */ = {isa = PBXBuildFile; fileRef = AAD0CCF11CAB75A30031B61E /* ZCPhotoBaseSetting.m */; };
+		AABB4A661CBC964D00B140ED /* ZCPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = AABB4A651CBC964D00B140ED /* ZCPhoto.m */; };
 		AAFDABC51CA909190051C61C /* ZCRootCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AAFDABC41CA909190051C61C /* ZCRootCollectionViewController.m */; };
 /* End PBXBuildFile section */
 
@@ -42,7 +42,6 @@
 		AA5319551CA38D680017B306 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA5319581CA38D680017B306 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AA53195A1CA38D680017B306 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		AA5319611CA38F280017B306 /* ZCPhoto.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPhoto.h; sourceTree = "<group>"; };
 		AA5319621CA38F3A0017B306 /* ZCPhotoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCPhotoManager.h; sourceTree = "<group>"; };
 		AA5319631CA38F3A0017B306 /* ZCPhotoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCPhotoManager.m; sourceTree = "<group>"; };
 		AA5319651CA3BE590017B306 /* ZCPhotoFetch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCPhotoFetch.h; sourceTree = "<group>"; };
@@ -72,8 +71,9 @@
 		AA6575B31CA4D69A00BED2E7 /* ZCImageManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCImageManager.m; sourceTree = "<group>"; };
 		AA6575B51CA4D85500BED2E7 /* UIImageView+ZCImageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+ZCImageManager.h"; sourceTree = "<group>"; };
 		AA6575B61CA4D85500BED2E7 /* UIImageView+ZCImageManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+ZCImageManager.m"; sourceTree = "<group>"; };
-		AAD0CCF01CAB75A30031B61E /* ZCPhotoBaseSetting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCPhotoBaseSetting.h; sourceTree = "<group>"; };
-		AAD0CCF11CAB75A30031B61E /* ZCPhotoBaseSetting.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCPhotoBaseSetting.m; sourceTree = "<group>"; };
+		AABB4A631CBC95D900B140ED /* ZCPhotoKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPhotoKit.h; sourceTree = "<group>"; };
+		AABB4A641CBC964D00B140ED /* ZCPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCPhoto.h; sourceTree = "<group>"; };
+		AABB4A651CBC964D00B140ED /* ZCPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCPhoto.m; sourceTree = "<group>"; };
 		AAF5A7ED1CA8DCCF004F198F /* ZCPhotoDefines.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPhotoDefines.h; sourceTree = "<group>"; };
 		AAFDABC31CA909190051C61C /* ZCRootCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCRootCollectionViewController.h; sourceTree = "<group>"; };
 		AAFDABC41CA909190051C61C /* ZCRootCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCRootCollectionViewController.m; sourceTree = "<group>"; };
@@ -154,13 +154,13 @@
 		AA5319601CA38D780017B306 /* ZCPhotoBrowser */ = {
 			isa = PBXGroup;
 			children = (
-				AA5319611CA38F280017B306 /* ZCPhoto.h */,
-				AAD0CCF01CAB75A30031B61E /* ZCPhotoBaseSetting.h */,
-				AAD0CCF11CAB75A30031B61E /* ZCPhotoBaseSetting.m */,
+				AABB4A631CBC95D900B140ED /* ZCPhotoKit.h */,
 				AA5319681CA3BFB50017B306 /* ZCPhotoTypes.h */,
 				AAF5A7ED1CA8DCCF004F198F /* ZCPhotoDefines.h */,
 				AA5319621CA38F3A0017B306 /* ZCPhotoManager.h */,
 				AA5319631CA38F3A0017B306 /* ZCPhotoManager.m */,
+				AABB4A641CBC964D00B140ED /* ZCPhoto.h */,
+				AABB4A651CBC964D00B140ED /* ZCPhoto.m */,
 				AA5319651CA3BE590017B306 /* ZCPhotoFetch.h */,
 				AA5319661CA3BE590017B306 /* ZCPhotoFetch.m */,
 				AA5319691CA3C6800017B306 /* PHFetchResult+ZCPhotoFetch.h */,
@@ -249,6 +249,7 @@
 				AA53196B1CA3C6800017B306 /* PHFetchResult+ZCPhotoFetch.m in Sources */,
 				AA53197D1CA3D3FB0017B306 /* ZCPhotoListCell.m in Sources */,
 				AA5319511CA38D680017B306 /* ViewController.m in Sources */,
+				AABB4A661CBC964D00B140ED /* ZCPhoto.m in Sources */,
 				AA5319641CA38F3A0017B306 /* ZCPhotoManager.m in Sources */,
 				AA6146A71CB78E16004079B5 /* ZCImageView.m in Sources */,
 				AAFDABC51CA909190051C61C /* ZCRootCollectionViewController.m in Sources */,
@@ -259,7 +260,6 @@
 				AA6575B41CA4D69A00BED2E7 /* ZCImageManager.m in Sources */,
 				AA53194E1CA38D680017B306 /* AppDelegate.m in Sources */,
 				AA6575B71CA4D85500BED2E7 /* UIImageView+ZCImageManager.m in Sources */,
-				AAD0CCF21CAB75A30031B61E /* ZCPhotoBaseSetting.m in Sources */,
 				AA5319711CA3CAC20017B306 /* ZCPhotoSubCollectionList.m in Sources */,
 				AA53194B1CA38D680017B306 /* main.m in Sources */,
 			);

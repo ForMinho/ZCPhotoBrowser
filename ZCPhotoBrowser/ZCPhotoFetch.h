@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ZCPhoto.h"
+#import "ZCPhotoKit.h"
 @interface ZCPhotoFetch : PHFetchResult
 @property (nonatomic, strong) PHFetchResult *allPhotos;//返回所有照片合集
 @property (nonatomic, strong) PHFetchResult *albumCollection;// 用户自定义照片存储集合

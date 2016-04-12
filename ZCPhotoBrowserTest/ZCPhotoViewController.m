@@ -15,7 +15,7 @@
 #define ZCPhotoIndex @"ZCPhotoIndex"
 @interface ZCPhotoViewController()<UIScrollViewDelegate>
 @property (nonatomic, strong) UIScrollView *scrollView;
-@property (nonatomic, strong) NSMutableArray *visibleArray;//image in window
+@property (nonatomic, strong) NSMutableSet *visibleArray;//image in window
 @property (nonatomic, strong) NSMutableArray *photosArray;
 @end
 
@@ -40,6 +40,7 @@
     }
     [self resetPhotosArray];
     
+    _visibleArray = [[NSMutableSet alloc] init];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadPhotoImageViewWithNotification:) name:ZCPhotoViewController_GetPhoto_Notification object:nil];
 }
 - (void)viewDidAppear:(BOOL)animated
@@ -61,13 +62,6 @@
 }
 #pragma mark --- UI Update
 
-- (void)loadPhotoImageViewWithNotification:(NSNotification *)notification
-{
-    NSDictionary *imageInfo = notification.object;
-    UIImage *image = (UIImage *)imageInfo[ZCPhotoImage];
-    NSInteger index = [(NSNumber *)imageInfo[ZCPhotoIndex] integerValue];
-    [self updateImageViewWithImageView:nil withImage:image AtIndex:index];
-}
 - (void)jumpImageToPageAtIndex:(NSInteger)index WithAnimation:(BOOL)animation
 {
     NSUInteger numberOfPhotos = [self numberOfPhotosInBrowser];
@@ -80,7 +74,7 @@
         for (i = 0; i < index - 1; i ++) {
             tempObj = _photosArray[i];
             if (tempObj != [NSNull null]) {
-                [tempObj cancleLoadingImage];
+                [(ZCPhoto *)tempObj cancelLoadImage];
                 [_photosArray replaceObjectAtIndex:i withObject:tempObj];
             }
         }
@@ -89,19 +83,51 @@
         for (i = index + 2; i < numberOfPhotos; i ++) {
             tempObj = _photosArray[i];
             if (tempObj != [NSNull null]) {
-                [tempObj cancleLoadingImage];
+                [(ZCPhoto *)tempObj cancelLoadImage];
                 [_photosArray replaceObjectAtIndex:i withObject:tempObj];
             }
         }
     }
     
-    id page = _photosArray[index];
-    if (page == [NSNull null]) {
-        page = [[ZCScrollView alloc] initWithFrame:[self frameForPageAtIndex:index]];
-        [self.scrollView addSubview:page];
-        [_photosArray replaceObjectAtIndex:index withObject:page];
+    ZCPhoto *photo = [self photoAtIndex:index];
+    if ([photo photoImage] == nil) {
+        [photo loadImageAndNotification];
     }
-    [(ZCScrollView *)page setPhoto:[_delegate photoBrowser:self atIndexPath:index]];
+//    else
+    {
+        [self preloadPhotosIfNeed:index];
+    }
+}
+- (ZCPhoto *)photoAtIndex:(NSInteger)index
+{
+    ZCPhoto *photo = nil;
+    if (index >= 0 && index < [self numberOfPhotosInBrowser] - 1) {
+        if (_photosArray[index] == [NSNull null]) {
+            photo = [self.delegate photoBrowser:self atIndexPath:index];
+            if (photo) {
+                [_photosArray replaceObjectAtIndex:index withObject:photo];
+            }
+        }else
+        {
+            photo = _photosArray[index];
+        }
+    }
+    return photo;
+}
+-(void)preloadPhotosIfNeed:(NSInteger)index
+{
+    if (index > 0) {
+        ZCPhoto *photo = [self photoAtIndex:index - 1];
+        if (![photo photoImage]) {
+            [photo loadImageAndNotification];
+        }
+    }
+    if (index < [self numberOfPhotosInBrowser] - 1) {
+        ZCPhoto * photo = [self photoAtIndex:index + 1];
+        if (![photo photoImage]) {
+            [photo loadImageAndNotification];
+        }
+    }
 }
 - (void)updateImageViewWithImageView:(ZCScrollView *)imageView withImage:(UIImage *)image AtIndex:(NSUInteger) index
 {
@@ -138,6 +164,7 @@
 {
     page.frame = [self frameForPageAtIndex:index];
     page.photo = [_delegate photoBrowser:self atIndexPath:index];
+    page.index = index;
 }
 #pragma mark -- data
 - (NSInteger)numberOfPhotosInBrowser
@@ -178,8 +205,8 @@
     NSInteger numberOfPhotos = [self numberOfPhotosInBrowser];
     
     CGRect bounds = self.scrollView.bounds;
-    NSInteger firstIndex = (NSInteger)((CGRectGetMinX(bounds) + Padding * 2) / (CGRectGetWidth(bounds)));
-    NSInteger lastIndex = (NSInteger)((CGRectGetMaxX(bounds) - Padding * 2) / CGRectGetWidth(bounds));
+    NSInteger firstIndex = (NSInteger)floorf((CGRectGetMinX(bounds) + Padding * 2) / CGRectGetWidth(bounds)) - 1;
+    NSInteger lastIndex = (NSInteger)floorf((CGRectGetMaxX(bounds) - Padding * 2 - 1) / CGRectGetWidth(bounds))  + 1;
     
     if (firstIndex <= 0) {
         firstIndex = 0;
@@ -193,39 +220,44 @@
     if (lastIndex >= numberOfPhotos - 1) {
         lastIndex = numberOfPhotos - 1;
     }
+    NSMutableSet *removeSet = [[NSMutableSet alloc] init];;
+    for(ZCScrollView *tempView in _visibleArray) {
+        NSInteger tempIndex = tempView.index;
+        if (tempIndex < firstIndex || tempIndex > lastIndex) {
+            [removeSet addObject:tempView];
+            [tempView removeFromSuperview];
+        }
+    }
+    [_visibleArray minusSet:removeSet];
+    
     NSInteger i;
-//    if (firstIndex > 0) {
-//        for (i = 0; i < firstIndex - 1; i ++) {
-//           id tempObj = _photosArray[i];
-//            if (tempObj != [NSNull null]) {
-//                [tempObj removeFromSuperview];
-//                [_photosArray replaceObjectAtIndex:i withObject:[NSNull null]];
-//            }
-//        }
-//    }
-//    if (lastIndex < numberOfPhotos - 1) {
-//        for (i = lastIndex + 2; i < numberOfPhotos - 1; i ++ ) {
-//            id tempObj = _photosArray[i];
-//            if (tempObj != [NSNull null]) {
-//                [tempObj removeFromSuperview];
-//                [_photosArray replaceObjectAtIndex:i withObject:[NSNull null]];
-//            }
-//        }
-//    }
+
     for (i = firstIndex; i <= lastIndex; i ++) {
-        id  tempObj = _photosArray[i];
-        if (tempObj == [NSNull null]) {
+        if (![self isDisplayingPageAtIndex:i]) {
             ZCScrollView *page = [[ZCScrollView alloc] init];
             [self configuePage:page AtIndex:i];
             [self.scrollView addSubview:page];
-            [_photosArray replaceObjectAtIndex:i withObject:page];
+            [_visibleArray addObject:page];
         }
     }
     
 }
+- (BOOL)isDisplayingPageAtIndex:(NSInteger)index
+{
+    BOOL isDisplaying = NO;
+    for (ZCScrollView *tempView in _visibleArray) {
+        if (tempView.index == index) {
+            isDisplaying = YES;
+            break;
+        }
+    }
+    return isDisplaying;
+}
 #pragma mark -- UIScrollView
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    [self preLoadPages];
+    
     CGRect visbleBounds = scrollView.bounds;
     NSInteger index = (NSInteger)(CGRectGetMidX(visbleBounds) / CGRectGetWidth(visbleBounds));
     if (index < 0) {
@@ -236,7 +268,6 @@
     }
     NSInteger previousCurrentIndex = _selectedIndex;
     _selectedIndex = index;
-    [self preLoadPages];
     if (_selectedIndex != previousCurrentIndex) {
         [self jumpImageToPageAtIndex:_selectedIndex WithAnimation:YES];
     }

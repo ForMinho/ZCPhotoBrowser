@@ -7,7 +7,7 @@
 //
 
 #import <Photos/Photos.h>
-#import "ZCPhoto.h"
+#import "ZCPhotoKit.h"
 @interface PHFetchResult (ZCPhotoFetch)
 @property (nonatomic,strong) NSString *FetchResultSubClass;//tag，方便之后获取集合数据方便
 @end

@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "ZCPhoto.h"
+#import "ZCPhotoKit.h"
 @interface ZCPhotoManager : NSObject
 
 + (instancetype)sharedPhotoManager;
