@@ -14,12 +14,23 @@
 #define ZCPhotoAsset @"ZCPhotoAsset"
 #define ZCPhotoIndex @"ZCPhotoIndex"
 @interface ZCPhotoViewController()<UIScrollViewDelegate>
+{
+    BOOL _isViewActive ;
+    CGRect _previousLayoutBounds ;
+    
+    BOOL _performingLaout;
+    BOOL _skipNextPageingScrollViewPositioning;
+    BOOL _willLayoutSubviews;
+}
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) NSMutableSet *visibleArray;//image in window
 @property (nonatomic, strong) NSMutableArray *photosArray;
 @end
 
 @implementation ZCPhotoViewController
+
+#pragma mark -- ui
+
 + (instancetype)sharedZCPhotoViewController
 {
     UIStoryboard *storybord = [UIStoryboard storyboardWithName:@"Photo" bundle:nil];
@@ -28,41 +39,168 @@
 }
 - (void)viewDidLoad
 {
+    self.view.clipsToBounds = YES;
+    _previousLayoutBounds = CGRectZero;
+    _performingLaout = NO;
+    _skipNextPageingScrollViewPositioning = YES;
+    _willLayoutSubviews = NO;
+    self.navigationController.navigationBar.translucent = YES;
     if (!self.scrollView) {
         self.scrollView = [[UIScrollView alloc] init];
         self.scrollView.frame = [self frameOfScrollView];
         self.scrollView.delegate = self;
-        [self.scrollView setContentSize:CGSizeMake(CGRectGetWidth(self.scrollView.bounds)*[self numberOfPhotosInBrowser], 0)];
+        [self.scrollView setContentSize:[self contentSizeOfScrollView]];
         self.scrollView.pagingEnabled = YES;
-        [self.scrollView setBackgroundColor:[UIColor grayColor]];
+        [self.scrollView setBackgroundColor:[UIColor redColor]];
+        self.scrollView.showsHorizontalScrollIndicator = NO;
+        self.scrollView.showsVerticalScrollIndicator = NO;
+        self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
         [self.view addSubview:self.scrollView];
 
     }
-    [self resetPhotosArray];
     
     _visibleArray = [[NSMutableSet alloc] init];
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadPhotoImageViewWithNotification:) name:ZCPhotoViewController_GetPhoto_Notification object:nil];
+    _isViewActive = NO;
+    [self reloadData];
+    [super viewDidLoad];
 }
 - (void)viewDidAppear:(BOOL)animated
 {
-
+    _isViewActive = YES;
 }
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    CGPoint contentOffset = [self contentOffsetForPageAtIndex:_selectedIndex];
-    [self.scrollView setContentOffset:contentOffset animated:NO];
+
+    
     [self jumpImageToPageAtIndex:_selectedIndex WithAnimation:NO];
-    [self preLoadPages];
 }
 - (void)viewDidDisappear:(BOOL)animated
 {
     [super viewDidDisappear:animated];
-    self.navigationController.navigationBar.translucent = YES;
 }
-#pragma mark --- UI Update
+- (void)reloadData
+{
+    if (!_visibleArray) {
+        _visibleArray = [[NSMutableSet alloc] init];
+    }
+    [_visibleArray removeAllObjects];
+    
+    [self resetPhotosArray];
+    if ([self isViewLoaded])
+    {
+        _performingLaout = YES;
+        [self.scrollView setContentOffset:[self contentOffsetForPageAtIndex:_selectedIndex]];
+        [self preLoadPages];
+        _performingLaout = NO;
+        [self.view setNeedsLayout];
+    }
+}
+- (BOOL)prefersStatusBarHidden
+{
+    return NO;
+}
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return UIStatusBarStyleLightContent;
+}
+- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation
+{
+    return UIStatusBarAnimationSlide;
+}
+#pragma mark --- layout
+- (void)viewWillLayoutSubviews
+{
+    NSLog(@"%@",NSStringFromSelector(_cmd));
+    [super viewWillLayoutSubviews];
+    if (!_willLayoutSubviews) {
+        [self layoutVisiblePages];
+        _willLayoutSubviews = YES;
+    }
+}
+
+- (void)layoutVisiblePages
+{
+    _performingLaout = YES;
+    
+    NSUInteger pageIndex = _selectedIndex;
+    
+    CGRect scrollViewFrame = [self frameOfScrollView];
+    if (!_skipNextPageingScrollViewPositioning) {
+        _scrollView.frame = scrollViewFrame;
+    }
+    _skipNextPageingScrollViewPositioning = NO;
+
+    _scrollView.contentSize =[self contentSizeOfScrollView];
+    for (ZCScrollView *page in _visibleArray) {
+        NSUInteger index = page.index;
+        page.frame = [self frameForPageAtIndex:index];
+        if (!CGRectEqualToRect(_previousLayoutBounds, self.view.bounds)) {
+            [page setMaxMinZoomScalesForImage];
+            _previousLayoutBounds = self.view.bounds;
+        }
+    }
+    
+//    self.scrollView.contentOffset = [self contentOffsetForPageAtIndex:pageIndex];
+//    [self didStartPagingViewAtIndex:_selectedIndex];
+    _selectedIndex = pageIndex;
+    _performingLaout = NO;
+}
+
+
+#pragma mark ---  pages
+
+- (void)preLoadPages
+{
+    NSInteger numberOfPhotos = [self numberOfPhotosInBrowser];
+    
+    CGRect bounds = self.scrollView.bounds;
+    NSInteger firstIndex = (NSInteger)floorf((CGRectGetMinX(bounds) + Padding * 2) / CGRectGetWidth(bounds)) ;
+    NSInteger lastIndex = (NSInteger)floorf((CGRectGetMaxX(bounds) - Padding * 2 - 1) / CGRectGetWidth(bounds)) ;
+    
+    if (firstIndex <= 0) {
+        firstIndex = 0;
+    }
+    if (firstIndex >= numberOfPhotos - 1) {
+        firstIndex = numberOfPhotos - 1;
+    }
+    if (lastIndex <= 0) {
+        lastIndex = 0;
+    }
+    if (lastIndex >= numberOfPhotos - 1) {
+        lastIndex = numberOfPhotos - 1;
+    }
+    NSMutableSet *removeSet = [[NSMutableSet alloc] init];;
+    for(ZCScrollView *tempView in _visibleArray) {
+        NSInteger tempIndex = tempView.index;
+        if (tempIndex < firstIndex || tempIndex > lastIndex) {
+            [removeSet addObject:tempView];
+            [tempView removeFromSuperview];
+        }
+    }
+    [_visibleArray minusSet:removeSet];
+    
+    NSInteger i;
+    
+    for (i = firstIndex; i <= lastIndex; i ++) {
+        if (![self isDisplayingPageAtIndex:i]) {
+            ZCScrollView *page = [[ZCScrollView alloc] init];
+            [self configuePage:page AtIndex:i];
+            [self.scrollView addSubview:page];
+            [_visibleArray addObject:page];
+        }
+    }
+    
+}
 
 - (void)jumpImageToPageAtIndex:(NSInteger)index WithAnimation:(BOOL)animation
+{
+    if (index < [self numberOfPhotosInBrowser]) {
+        CGPoint contentOffset = [self contentOffsetForPageAtIndex:index];
+        [self.scrollView setContentOffset:contentOffset animated:NO];
+    }
+}
+- (void)didStartPagingViewAtIndex:(NSUInteger)index
 {
     NSUInteger numberOfPhotos = [self numberOfPhotosInBrowser];
     if (!numberOfPhotos) {
@@ -93,9 +231,42 @@
     if ([photo photoImage] == nil) {
         [photo loadImageAndNotification];
     }
-//    else
-    {
-        [self preloadPhotosIfNeed:index];
+    [self preloadPhotosIfNeed:index];
+
+}
+- (void)configuePage:(ZCScrollView *)page AtIndex:(NSInteger)index
+{
+    page.frame = [self frameForPageAtIndex:index];
+    page.photo = [_delegate photoBrowser:self atIndexPath:index];
+    page.index = index;
+}
+
+- (BOOL)isDisplayingPageAtIndex:(NSInteger)index
+{
+    BOOL isDisplaying = NO;
+    for (ZCScrollView *tempView in _visibleArray) {
+        if (tempView.index == index) {
+            isDisplaying = YES;
+            break;
+        }
+    }
+    return isDisplaying;
+}
+
+#pragma mark --- photos
+-(void)preloadPhotosIfNeed:(NSInteger)index
+{
+    if (index > 0) {
+        ZCPhoto *photo = [self photoAtIndex:index - 1];
+        if (![photo photoImage]) {
+            [photo loadImageAndNotification];
+        }
+    }
+    if (index < [self numberOfPhotosInBrowser] - 1) {
+        ZCPhoto * photo = [self photoAtIndex:index + 1];
+        if (![photo photoImage]) {
+            [photo loadImageAndNotification];
+        }
     }
 }
 - (ZCPhoto *)photoAtIndex:(NSInteger)index
@@ -114,42 +285,21 @@
     }
     return photo;
 }
--(void)preloadPhotosIfNeed:(NSInteger)index
-{
-    if (index > 0) {
-        ZCPhoto *photo = [self photoAtIndex:index - 1];
-        if (![photo photoImage]) {
-            [photo loadImageAndNotification];
-        }
-    }
-    if (index < [self numberOfPhotosInBrowser] - 1) {
-        ZCPhoto * photo = [self photoAtIndex:index + 1];
-        if (![photo photoImage]) {
-            [photo loadImageAndNotification];
-        }
-    }
-}
-- (void)updateImageViewWithImageView:(ZCScrollView *)imageView withImage:(UIImage *)image AtIndex:(NSUInteger) index
-{
-    if (!imageView) {
-        imageView = [[ZCScrollView alloc] init];
-    }
-    [imageView setFrame:[self frameForPageAtIndex:index]];
-    [imageView setImage:image];
-    [self.scrollView addSubview:imageView];
 
-}
+
+#pragma mark -- frame & size
 - (CGRect)frameForPageAtIndex:(NSUInteger) index
 {
     CGRect bounds = self.scrollView.bounds;
     CGRect pageFrame = bounds;
+//    pageFrame.origin.y = 0;
     pageFrame.size.width -= (2 * Padding);
     pageFrame.origin.x = (bounds.size.width * index) + Padding;
     return CGRectIntegral(pageFrame);
 }
 - (CGRect)frameOfScrollView
 {
-    CGRect boundsRect = self.view.bounds;
+    CGRect boundsRect = [[UIScreen mainScreen] bounds];//self.view.bounds;
     boundsRect.origin.x -= Padding;
     boundsRect.size.width += (2 * Padding);
     return boundsRect;
@@ -160,11 +310,13 @@
     CGPoint offsetPoint = CGPointMake(pageWidth * index, 0);
     return offsetPoint;
 }
-- (void)configuePage:(ZCScrollView *)page AtIndex:(NSInteger)index
+- (CGSize)contentSizeOfScrollView
 {
-    page.frame = [self frameForPageAtIndex:index];
-    page.photo = [_delegate photoBrowser:self atIndexPath:index];
-    page.index = index;
+    CGSize contentSize ;
+    CGRect scrollViewFrame = [self frameOfScrollView];
+    
+    contentSize = CGSizeMake(scrollViewFrame.size.width * [self numberOfPhotosInBrowser], 0);//scrollViewFrame.size.height);
+    return contentSize;
 }
 #pragma mark -- data
 - (NSInteger)numberOfPhotosInBrowser
@@ -198,78 +350,33 @@
         selectedIndex = numberOfPhotos - 1;
     }
     _selectedIndex = selectedIndex;
-}
-
-- (void)preLoadPages
-{
-    NSInteger numberOfPhotos = [self numberOfPhotosInBrowser];
     
-    CGRect bounds = self.scrollView.bounds;
-    NSInteger firstIndex = (NSInteger)floorf((CGRectGetMinX(bounds) + Padding * 2) / CGRectGetWidth(bounds)) - 1;
-    NSInteger lastIndex = (NSInteger)floorf((CGRectGetMaxX(bounds) - Padding * 2 - 1) / CGRectGetWidth(bounds))  + 1;
-    
-    if (firstIndex <= 0) {
-        firstIndex = 0;
-    }
-    if (firstIndex >= numberOfPhotos - 1) {
-        firstIndex = numberOfPhotos - 1;
-    }
-    if (lastIndex <= 0) {
-        lastIndex = 0;
-    }
-    if (lastIndex >= numberOfPhotos - 1) {
-        lastIndex = numberOfPhotos - 1;
-    }
-    NSMutableSet *removeSet = [[NSMutableSet alloc] init];;
-    for(ZCScrollView *tempView in _visibleArray) {
-        NSInteger tempIndex = tempView.index;
-        if (tempIndex < firstIndex || tempIndex > lastIndex) {
-            [removeSet addObject:tempView];
-            [tempView removeFromSuperview];
+    if ([self isViewLoaded]) {
+        [self jumpImageToPageAtIndex:_selectedIndex WithAnimation:NO];
+        if (_isViewActive) {
+            [self preLoadPages];
         }
     }
-    [_visibleArray minusSet:removeSet];
-    
-    NSInteger i;
-
-    for (i = firstIndex; i <= lastIndex; i ++) {
-        if (![self isDisplayingPageAtIndex:i]) {
-            ZCScrollView *page = [[ZCScrollView alloc] init];
-            [self configuePage:page AtIndex:i];
-            [self.scrollView addSubview:page];
-            [_visibleArray addObject:page];
-        }
-    }
-    
-}
-- (BOOL)isDisplayingPageAtIndex:(NSInteger)index
-{
-    BOOL isDisplaying = NO;
-    for (ZCScrollView *tempView in _visibleArray) {
-        if (tempView.index == index) {
-            isDisplaying = YES;
-            break;
-        }
-    }
-    return isDisplaying;
 }
 #pragma mark -- UIScrollView
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    if (!_isViewActive || _performingLaout) {
+        return;
+    }
     [self preLoadPages];
     
     CGRect visbleBounds = scrollView.bounds;
     NSInteger index = (NSInteger)(CGRectGetMidX(visbleBounds) / CGRectGetWidth(visbleBounds));
-    if (index < 0) {
-        index = 0;
-    }
-    if (index > [self numberOfPhotosInBrowser]) {
-        index = [self numberOfPhotosInBrowser];
-    }
+    index = MIN(MAX(index, 0), [self numberOfPhotosInBrowser] - 1);
     NSInteger previousCurrentIndex = _selectedIndex;
     _selectedIndex = index;
     if (_selectedIndex != previousCurrentIndex) {
-        [self jumpImageToPageAtIndex:_selectedIndex WithAnimation:YES];
+        [self didStartPagingViewAtIndex:index];
     }
+}
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    
 }
 @end

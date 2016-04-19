@@ -159,17 +159,19 @@
 {
     return _photoView;
 }
+- (void)scrollViewWillBeginZooming:(UIScrollView *)scrollView withView:(UIView *)view
+{
+    self.scrollEnabled = YES;
+}
+- (void)scrollViewDidZoom:(UIScrollView *)scrollView
+{
+    [self setNeedsDisplay];
+    [self layoutIfNeeded];
+}
 
 #pragma  mark --
 - (void)setImageWithNotification:(NSNotification *)notification
 {
-//    NSDictionary *dic = notification.object;
-//    if (ZCPhoto_PHAssetClass) {
-//        PHAsset *asset = (PHAsset *)_photo;
-//        if ([asset.localIdentifier isEqualToString:[dic[ZCPhoto_Loaded_Successed_Asset] localIdentifier]]) {
-//            self.image = dic[ZCPhoto_Loaded_Successed_Image];
-//        }
-//    }
     ZCPhoto *objectPhoto = notification.object;
     if (objectPhoto == _photo) {
         if ([objectPhoto photoImage]) {
@@ -180,19 +182,6 @@
 }
 - (void)startLoadingImage
 {
-//    if (ZCPhoto_PHAssetClass) {
-//        PHAsset *asset = (PHAsset *)_photo;
-//        CGSize imageSize;
-//        imageSize.width = asset.pixelWidth;
-//        imageSize.height = asset.pixelHeight;
-//        [[ZCImageManager sharedImageManager] requestImageWithAsset:self.photo imageSize:imageSize contentMode:PHImageContentModeAspectFill options:nil completeHandler:^(PHAsset *asset , UIImage * image , NSDictionary *dic)
-//         {
-//             if ([asset.localIdentifier isEqualToString:[_photo localIdentifier]]) {
-//                 self.image = image;
-//             }
-//         }];
-//        
-//    }
 
     [_photo loadImageAndNotification];
     

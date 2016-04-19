@@ -66,6 +66,10 @@
 - (void)cancelLoadImage;
 {
     self.image = nil;
+    if (_imageRequestID != PHInvalidImageRequestID) {
+        [[ZCImageManager sharedImageManager] cancelLoadImage:_imageRequestID];
+        _imageRequestID = PHInvalidImageRequestID;
+    }
 }
 - (UIImage *)photoImage
 {

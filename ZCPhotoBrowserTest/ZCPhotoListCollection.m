@@ -12,6 +12,9 @@ static const CGFloat spacing = 2.f;
 static const int     cellNum = 4;
 static CGSize imageSizeWithScale;
 @interface ZCPhotoListCollection ()<ZCPhotoViewControllerDelegate>
+{
+    CGFloat scale;
+}
 @property (nonatomic, assign) CGRect  previosPreheatRect;
 @property (nonatomic, strong) NSMutableArray *photosArray;
 @end
@@ -29,7 +32,7 @@ static CGSize imageSizeWithScale;
     [super viewDidLoad];
     CGFloat width = (CGRectGetWidth(self.view.frame) - spacing * (cellNum - 1))/cellNum;
     CGSize cellSize = CGSizeMake(width, width);
-    CGFloat scale = [UIScreen mainScreen].scale;
+    scale = [UIScreen mainScreen].scale;
     imageSizeWithScale = CGSizeMake(width * scale, width * scale);
     
     UICollectionViewFlowLayout *layout = [[UICollectionViewFlowLayout alloc] init];
@@ -45,17 +48,11 @@ static CGSize imageSizeWithScale;
 - (void)viewWillAppear:(BOOL)animated
 {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(photoLibraryChangedWithNotification:) name:ZCPhotoLibrary_Changed object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadImageCompleteWithNotification:) name:ZCPhoto_Loaded_Successed object:nil];
 }
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ZCPhotoLibrary_Changed object:nil];
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:ZCPhoto_Loaded_Successed object:nil];
-}
-- (void)didReceiveMemoryWarning
-{
 }
 - (void)photosArrayWithFetchResult
 {
@@ -63,8 +60,14 @@ static CGSize imageSizeWithScale;
         if (_photosArray == nil) {
             _photosArray = [[NSMutableArray alloc] initWithCapacity:self.fetchResult.count];
         }
+        CGSize size = CGSizeZero;
         for (PHAsset *asset in self.fetchResult) {
-            ZCPhoto *photo = [ZCPhoto photoWithAsset:asset ImageSize:imageSizeWithScale];
+            size = imageSizeWithScale;
+            if ((asset.pixelHeight / asset.pixelWidth ) > 4) {
+                size = CGSizeMake(size.width/scale, size.height/2);
+            }
+
+            ZCPhoto *photo = [ZCPhoto photoWithAsset:asset ImageSize:size];
             [_photosArray addObject:photo];
         }
     }
@@ -73,7 +76,7 @@ static CGSize imageSizeWithScale;
 #pragma mark --- Datas
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return [_photosArray count];//self.fetchResult.count;
+    return [_photosArray count];
 }
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
@@ -81,35 +84,26 @@ static CGSize imageSizeWithScale;
     cell.image.image = nil;
     ZCPhoto *photo = _photosArray[indexPath.row];
     [cell updatePhotoCellWithPhoto:photo WithImageSize:imageSizeWithScale];
-
-    
-//    PHAsset *asset = self.fetchResult[indexPath.row];
-//    cell.cellAsset = asset;
-//    cell.localIdentifier = asset.localIdentifier;
-//    [cell updatePhotoOnCellWithImageSize:imageSizeWithScale content:PHImageContentModeAspectFill CompleteHandeler:nil];
-
-    
+    if ([photo photoImage]) {
+        cell.image.image = [photo photoImage];
+    }else{
+        [photo loadImageAndNotification];
+    }
     return cell;
 }
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    ZCPhotoListCell *listCell = (ZCPhotoListCell *)cell;
-    [listCell cancelLoadImage];
-}
-- (void)collectionView:(UICollectionView *)collectionView willDisplayCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    if ([self.fetchResult count] > indexPath.row) {
-        PHAsset *asset = self.fetchResult[indexPath.row];
-        ZCPhoto *photo = [ZCPhoto photoWithAsset:asset ImageSize:imageSizeWithScale];
-        [photo loadImageAndNotification];
-    }
+    ZCPhoto *photo = _photosArray[indexPath.row];
+    [photo cancelLoadImage];
 }
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     ZCPhotoViewController *photoViewCon = [ZCPhotoViewController sharedZCPhotoViewController];
     photoViewCon.delegate = self;
-    photoViewCon.selectedIndex = indexPath.row;
+  
     [self.navigationController pushViewController:photoViewCon animated:YES];
+      photoViewCon.selectedIndex = indexPath.row;
+    
 }
 - (void)dealloc
 {
@@ -206,14 +200,12 @@ static CGSize imageSizeWithScale;
     }
     static CGSize imageSize;
     if (imageSize.width == 0 && imageSize.height == 0) {
-        CGFloat scale = [[UIScreen mainScreen] scale];
         imageSize.width = CGRectGetWidth(self.view.frame) * scale;
         imageSize.height = CGRectGetHeight(self.view.frame) * scale;
     }
     ZCPhoto *photo = [ZCPhoto photoWithAsset:self.fetchResult[index] ImageSize:imageSize];
     return photo;
 }
-
 
 #pragma mark -- Notification
 - (void)loadImageCompleteWithNotification:(NSNotification *)notification

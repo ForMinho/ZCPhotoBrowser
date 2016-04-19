@@ -26,7 +26,6 @@
 		AA55F9401CB4BBF200FE580E /* ZCScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = AA55F93F1CB4BBF200FE580E /* ZCScrollView.m */; };
 		AA6146A71CB78E16004079B5 /* ZCImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6146A61CB78E16004079B5 /* ZCImageView.m */; };
 		AA6575B41CA4D69A00BED2E7 /* ZCImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6575B31CA4D69A00BED2E7 /* ZCImageManager.m */; };
-		AA6575B71CA4D85500BED2E7 /* UIImageView+ZCImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6575B61CA4D85500BED2E7 /* UIImageView+ZCImageManager.m */; };
 		AABB4A661CBC964D00B140ED /* ZCPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = AABB4A651CBC964D00B140ED /* ZCPhoto.m */; };
 		AAFDABC51CA909190051C61C /* ZCRootCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AAFDABC41CA909190051C61C /* ZCRootCollectionViewController.m */; };
 /* End PBXBuildFile section */
@@ -69,8 +68,6 @@
 		AA6146A61CB78E16004079B5 /* ZCImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCImageView.m; sourceTree = "<group>"; };
 		AA6575B21CA4D69A00BED2E7 /* ZCImageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCImageManager.h; sourceTree = "<group>"; };
 		AA6575B31CA4D69A00BED2E7 /* ZCImageManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCImageManager.m; sourceTree = "<group>"; };
-		AA6575B51CA4D85500BED2E7 /* UIImageView+ZCImageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImageView+ZCImageManager.h"; sourceTree = "<group>"; };
-		AA6575B61CA4D85500BED2E7 /* UIImageView+ZCImageManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImageView+ZCImageManager.m"; sourceTree = "<group>"; };
 		AABB4A631CBC95D900B140ED /* ZCPhotoKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPhotoKit.h; sourceTree = "<group>"; };
 		AABB4A641CBC964D00B140ED /* ZCPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCPhoto.h; sourceTree = "<group>"; };
 		AABB4A651CBC964D00B140ED /* ZCPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCPhoto.m; sourceTree = "<group>"; };
@@ -167,8 +164,6 @@
 				AA53196A1CA3C6800017B306 /* PHFetchResult+ZCPhotoFetch.m */,
 				AA6575B21CA4D69A00BED2E7 /* ZCImageManager.h */,
 				AA6575B31CA4D69A00BED2E7 /* ZCImageManager.m */,
-				AA6575B51CA4D85500BED2E7 /* UIImageView+ZCImageManager.h */,
-				AA6575B61CA4D85500BED2E7 /* UIImageView+ZCImageManager.m */,
 			);
 			path = ZCPhotoBrowser;
 			sourceTree = "<group>";
@@ -259,7 +254,6 @@
 				AA55F93D1CB4B6E000FE580E /* ZCPhotoViewController.m in Sources */,
 				AA6575B41CA4D69A00BED2E7 /* ZCImageManager.m in Sources */,
 				AA53194E1CA38D680017B306 /* AppDelegate.m in Sources */,
-				AA6575B71CA4D85500BED2E7 /* UIImageView+ZCImageManager.m in Sources */,
 				AA5319711CA3CAC20017B306 /* ZCPhotoSubCollectionList.m in Sources */,
 				AA53194B1CA38D680017B306 /* main.m in Sources */,
 			);
@@ -376,6 +370,7 @@
 				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = YES;
 				GCC_PREFIX_HEADER = ZCPhotoBrowserTest/prefixHeader.pch;
 				INFOPLIST_FILE = ZCPhotoBrowserTest/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cindy.ZCPhotoBrowserTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -389,6 +384,7 @@
 				GCC_INCREASE_PRECOMPILED_HEADER_SHARING = YES;
 				GCC_PREFIX_HEADER = ZCPhotoBrowserTest/prefixHeader.pch;
 				INFOPLIST_FILE = ZCPhotoBrowserTest/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = cindy.ZCPhotoBrowserTest;
 				PRODUCT_NAME = "$(TARGET_NAME)";

@@ -14,4 +14,6 @@
 @property (nonatomic, strong) ZCPhoto *photo;
 - (void)startLoadingImage;
 - (void)cancleLoadingImage;
+
+- (void)setMaxMinZoomScalesForImage;
 @end

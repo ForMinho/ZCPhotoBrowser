@@ -11,39 +11,27 @@
 @property (assign,nonatomic) PHImageRequestID requestID;
 @end
 @implementation ZCPhotoListCell
-
+- (void)awakeFromNib
+{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(loadImageSuccessedWithNotification:) name:ZCPhoto_Loaded_Successed object:nil];
+}
 - (void)updatePhotoCellWithPhoto:(ZCPhoto*)photo WithImageSize:(CGSize)imageSize
 {
-//    [[NSNotificationCenter  defaultCenter] addObserver:self selector:@selector(photoImageWithNotification:) name:ZCPhoto_Loaded_Successed object:nil];
     self.photo = photo;
-    [photo loadImageAndNotification];
 }
-
-- (void)photoImageWithNotification:(NSNotification *)notification
+//- (void)cancelLoadImage
+//{
+//    [self.photo cancelLoadImage];
+//}
+- (void)loadImageSuccessedWithNotification:(NSNotification *)notification
 {
-    ZCPhoto *objPhoto = notification.object;
-    if (objPhoto == _photo) {
-        self.image.image = [objPhoto photoImage];
+    ZCPhoto *photo = notification.object;
+    if (_photo == photo) {
+        self.image.image = [photo photoImage];
     }
 }
-
-- (void)updatePhotoOnCellWithImageSize:(CGSize)imageSize content:(PHImageContentMode)contentMode CompleteHandeler:(ZCImageManagerCompletionBlock) handler
+- (void)dealloc
 {
-    __weak ZCPhotoListCell *weakSelf = self;
-    CGSize size = imageSize;
-
-    _requestID = [[ZCImageManager sharedImageManager] requestImageWithAsset:self.cellAsset imageSize:size contentMode:PHImageContentModeAspectFill options:nil completeHandler:^(PHAsset *asset,UIImage *image ,NSDictionary *dic)
-     {
-         if ([weakSelf.cellAsset.localIdentifier isEqualToString:asset.localIdentifier]) {
-             weakSelf.image.image = image;
-         }
-     }];
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:ZCPhoto_Loaded_Successed object:nil];
 }
-- (void)cancelLoadImage
-{
-    
-    [self.photo cancelLoadImage];
-}
-
-
 @end
