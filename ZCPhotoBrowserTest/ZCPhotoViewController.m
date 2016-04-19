@@ -21,6 +21,9 @@
     BOOL _performingLaout;
     BOOL _skipNextPageingScrollViewPositioning;
     BOOL _willLayoutSubviews;
+    
+    BOOL _isVCBasedStatusBarAppearance;
+    BOOL _statusBarShouldBeHidden;
 }
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) NSMutableSet *visibleArray;//image in window
@@ -37,14 +40,17 @@
     ZCPhotoViewController *photoViewCon = [storybord instantiateViewControllerWithIdentifier:NSStringFromClass([self class])];
     return photoViewCon;
 }
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        NSLog(@" -------- %@",NSStringFromSelector(_cmd));
+    }
+    return self;
+}
 - (void)viewDidLoad
 {
-    self.view.clipsToBounds = YES;
-    _previousLayoutBounds = CGRectZero;
-    _performingLaout = NO;
-    _skipNextPageingScrollViewPositioning = YES;
-    _willLayoutSubviews = NO;
-    self.navigationController.navigationBar.translucent = YES;
+    [self _initialisation];
     if (!self.scrollView) {
         self.scrollView = [[UIScrollView alloc] init];
         self.scrollView.frame = [self frameOfScrollView];
@@ -58,11 +64,31 @@
         [self.view addSubview:self.scrollView];
 
     }
-    
-    _visibleArray = [[NSMutableSet alloc] init];
-    _isViewActive = NO;
+
     [self reloadData];
     [super viewDidLoad];
+}
+
+- (void)_initialisation
+{
+    self.view.clipsToBounds = YES;
+    
+    NSNumber *isVCBasedStatusBarAppearanceNum = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIVIewControllerBasedStatusBarAppearance"];
+    if (isVCBasedStatusBarAppearanceNum) {
+        _isVCBasedStatusBarAppearance = isVCBasedStatusBarAppearanceNum.boolValue;
+    }else
+    {
+        _isVCBasedStatusBarAppearance = YES;
+    }
+    
+    _previousLayoutBounds = CGRectZero;
+    _performingLaout = NO;
+    _skipNextPageingScrollViewPositioning = YES;
+    _willLayoutSubviews = NO;
+//    self.navigationController.navigationBar.translucent = YES;
+    _visibleArray = [[NSMutableSet alloc] init];
+    _isViewActive = NO;
+    _statusBarShouldBeHidden = NO;
 }
 - (void)viewDidAppear:(BOOL)animated
 {
@@ -71,7 +97,6 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-
     
     [self jumpImageToPageAtIndex:_selectedIndex WithAnimation:NO];
 }
@@ -95,18 +120,6 @@
         _performingLaout = NO;
         [self.view setNeedsLayout];
     }
-}
-- (BOOL)prefersStatusBarHidden
-{
-    return NO;
-}
-- (UIStatusBarStyle)preferredStatusBarStyle
-{
-    return UIStatusBarStyleLightContent;
-}
-- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation
-{
-    return UIStatusBarAnimationSlide;
 }
 #pragma mark --- layout
 - (void)viewWillLayoutSubviews
@@ -146,7 +159,54 @@
     _selectedIndex = pageIndex;
     _performingLaout = NO;
 }
+#pragma mark -- controls
+- (BOOL)prefersStatusBarHidden
+{
+    return _statusBarShouldBeHidden;
+}
+- (UIStatusBarStyle)preferredStatusBarStyle
+{
+    return UIStatusBarStyleLightContent;
+}
+- (UIStatusBarAnimation)preferredStatusBarUpdateAnimation
+{
+    return UIStatusBarAnimationSlide;
+}
 
+- (void)setControlsHidden:(BOOL)hidden animated:(BOOL)animated
+{
+    if (![self numberOfPhotosInBrowser]) {
+        hidden = NO;
+    }
+    CGFloat animationOffset = 20;
+    CGFloat animationDuration = animated? 0.35f:0;
+    
+    
+    if (!_isVCBasedStatusBarAppearance) {
+        [[UIApplication sharedApplication] setStatusBarHidden:hidden withAnimation:animated?UIStatusBarAnimationSlide : UIStatusBarAnimationNone];
+    }else {
+        [UIView animateWithDuration:animationDuration animations:^{
+            _statusBarShouldBeHidden = hidden;
+            [self setNeedsStatusBarAppearanceUpdate];
+        }completion:^(BOOL finished){
+            
+        }];
+    }
+    
+//    if (!hidden && animated) {
+//     
+//        for (ZCScrollView *page in _visibleArray) {
+//            
+//        }
+//    }
+    
+    [UIView animateWithDuration:animationDuration animations:^{
+        CGFloat alpha = hidden ? 0 : 1;
+        [self.navigationController.navigationBar setAlpha:alpha];
+    }completion:^(BOOL finished){
+        
+    }];
+}
 
 #pragma mark ---  pages
 
@@ -313,9 +373,9 @@
 - (CGSize)contentSizeOfScrollView
 {
     CGSize contentSize ;
-    CGRect scrollViewFrame = [self frameOfScrollView];
+    CGRect scrollViewFrame = self.scrollView.bounds;//[self frameOfScrollView];
     
-    contentSize = CGSizeMake(scrollViewFrame.size.width * [self numberOfPhotosInBrowser], 0);//scrollViewFrame.size.height);
+    contentSize = CGSizeMake(scrollViewFrame.size.width * [self numberOfPhotosInBrowser], scrollViewFrame.size.height);//scrollViewFrame.size.height);
     return contentSize;
 }
 #pragma mark -- data
@@ -377,6 +437,6 @@
 }
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    
+    [self setControlsHidden:YES animated:YES];
 }
 @end
