@@ -16,10 +16,6 @@
 
 @property (nonatomic, strong) ZCPhoto *photo;
 
-//- (void)updatePhotoOnCellWithImageSize:(CGSize)imageSize content:(PHImageContentMode)contentMode CompleteHandeler:(ZCImageManagerCompletionBlock) handler;
-//- (void)cancelLoadImage;
-//
-
 - (void)updatePhotoCellWithPhoto:(ZCPhoto*)photo WithImageSize:(CGSize)imageSize;
 @end
 

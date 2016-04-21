@@ -17,4 +17,6 @@
 
 #import "ZCPhotoViewController.h"
 #import "ZCScrollView.h"
+#import "ZCTapDetecingView.h"
+#import "ZCTapDetectingImageView.h"
 #endif /* ZCPhotoTestHeader_h */

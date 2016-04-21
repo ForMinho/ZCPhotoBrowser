@@ -12,6 +12,7 @@
 @property (nonatomic, strong) UIImage *image;
 @property (nonatomic, assign) NSUInteger index;
 @property (nonatomic, strong) ZCPhoto *photo;
+@property (nonatomic, weak) ZCPhotoViewController *photoBrowser;
 - (void)startLoadingImage;
 - (void)cancleLoadingImage;
 

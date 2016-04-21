@@ -24,8 +24,9 @@
 		AA53197D1CA3D3FB0017B306 /* ZCPhotoListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = AA53197C1CA3D3FB0017B306 /* ZCPhotoListCell.m */; };
 		AA55F93D1CB4B6E000FE580E /* ZCPhotoViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AA55F93C1CB4B6E000FE580E /* ZCPhotoViewController.m */; };
 		AA55F9401CB4BBF200FE580E /* ZCScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = AA55F93F1CB4BBF200FE580E /* ZCScrollView.m */; };
-		AA6146A71CB78E16004079B5 /* ZCImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6146A61CB78E16004079B5 /* ZCImageView.m */; };
 		AA6575B41CA4D69A00BED2E7 /* ZCImageManager.m in Sources */ = {isa = PBXBuildFile; fileRef = AA6575B31CA4D69A00BED2E7 /* ZCImageManager.m */; };
+		AA9E97881CC7658F007BDA3C /* ZCTapDetectingImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = AA9E97871CC7658F007BDA3C /* ZCTapDetectingImageView.m */; };
+		AA9E978B1CC77CED007BDA3C /* ZCTapDetecingView.m in Sources */ = {isa = PBXBuildFile; fileRef = AA9E978A1CC77CED007BDA3C /* ZCTapDetecingView.m */; };
 		AABB4A661CBC964D00B140ED /* ZCPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = AABB4A651CBC964D00B140ED /* ZCPhoto.m */; };
 		AAFDABC51CA909190051C61C /* ZCRootCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = AAFDABC41CA909190051C61C /* ZCRootCollectionViewController.m */; };
 /* End PBXBuildFile section */
@@ -64,10 +65,12 @@
 		AA55F93C1CB4B6E000FE580E /* ZCPhotoViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCPhotoViewController.m; sourceTree = "<group>"; };
 		AA55F93E1CB4BBF200FE580E /* ZCScrollView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCScrollView.h; sourceTree = "<group>"; };
 		AA55F93F1CB4BBF200FE580E /* ZCScrollView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCScrollView.m; sourceTree = "<group>"; };
-		AA6146A51CB78E16004079B5 /* ZCImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCImageView.h; sourceTree = "<group>"; };
-		AA6146A61CB78E16004079B5 /* ZCImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCImageView.m; sourceTree = "<group>"; };
 		AA6575B21CA4D69A00BED2E7 /* ZCImageManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCImageManager.h; sourceTree = "<group>"; };
 		AA6575B31CA4D69A00BED2E7 /* ZCImageManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCImageManager.m; sourceTree = "<group>"; };
+		AA9E97861CC7658F007BDA3C /* ZCTapDetectingImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ZCTapDetectingImageView.h; path = ../ZCTapDetectingImageView.h; sourceTree = "<group>"; };
+		AA9E97871CC7658F007BDA3C /* ZCTapDetectingImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ZCTapDetectingImageView.m; path = ../ZCTapDetectingImageView.m; sourceTree = "<group>"; };
+		AA9E97891CC77CED007BDA3C /* ZCTapDetecingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCTapDetecingView.h; sourceTree = "<group>"; };
+		AA9E978A1CC77CED007BDA3C /* ZCTapDetecingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCTapDetecingView.m; sourceTree = "<group>"; };
 		AABB4A631CBC95D900B140ED /* ZCPhotoKit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZCPhotoKit.h; sourceTree = "<group>"; };
 		AABB4A641CBC964D00B140ED /* ZCPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZCPhoto.h; sourceTree = "<group>"; };
 		AABB4A651CBC964D00B140ED /* ZCPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZCPhoto.m; sourceTree = "<group>"; };
@@ -126,8 +129,10 @@
 				AA55F93C1CB4B6E000FE580E /* ZCPhotoViewController.m */,
 				AA55F93E1CB4BBF200FE580E /* ZCScrollView.h */,
 				AA55F93F1CB4BBF200FE580E /* ZCScrollView.m */,
-				AA6146A51CB78E16004079B5 /* ZCImageView.h */,
-				AA6146A61CB78E16004079B5 /* ZCImageView.m */,
+				AA9E97861CC7658F007BDA3C /* ZCTapDetectingImageView.h */,
+				AA9E97871CC7658F007BDA3C /* ZCTapDetectingImageView.m */,
+				AA9E97891CC77CED007BDA3C /* ZCTapDetecingView.h */,
+				AA9E978A1CC77CED007BDA3C /* ZCTapDetecingView.m */,
 				AA5319521CA38D680017B306 /* Main.storyboard */,
 				AA5319771CA3D1930017B306 /* Photo.storyboard */,
 				AA5319791CA3D37D0017B306 /* PhotoCell.xib */,
@@ -242,16 +247,17 @@
 			files = (
 				AA55F9401CB4BBF200FE580E /* ZCScrollView.m in Sources */,
 				AA53196B1CA3C6800017B306 /* PHFetchResult+ZCPhotoFetch.m in Sources */,
+				AA9E978B1CC77CED007BDA3C /* ZCTapDetecingView.m in Sources */,
 				AA53197D1CA3D3FB0017B306 /* ZCPhotoListCell.m in Sources */,
 				AA5319511CA38D680017B306 /* ViewController.m in Sources */,
 				AABB4A661CBC964D00B140ED /* ZCPhoto.m in Sources */,
 				AA5319641CA38F3A0017B306 /* ZCPhotoManager.m in Sources */,
-				AA6146A71CB78E16004079B5 /* ZCImageView.m in Sources */,
 				AAFDABC51CA909190051C61C /* ZCRootCollectionViewController.m in Sources */,
 				AA53196E1CA3CAAB0017B306 /* ZCPhotoListCollection.m in Sources */,
 				AA5319751CA3CCA10017B306 /* ZCJudgeObject.m in Sources */,
 				AA5319671CA3BE590017B306 /* ZCPhotoFetch.m in Sources */,
 				AA55F93D1CB4B6E000FE580E /* ZCPhotoViewController.m in Sources */,
+				AA9E97881CC7658F007BDA3C /* ZCTapDetectingImageView.m in Sources */,
 				AA6575B41CA4D69A00BED2E7 /* ZCImageManager.m in Sources */,
 				AA53194E1CA38D680017B306 /* AppDelegate.m in Sources */,
 				AA5319711CA3CAC20017B306 /* ZCPhotoSubCollectionList.m in Sources */,

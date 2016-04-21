@@ -23,11 +23,31 @@
     BOOL _willLayoutSubviews;
     
     BOOL _isVCBasedStatusBarAppearance;
+    BOOL _leaveStatusBarAlone;
     BOOL _statusBarShouldBeHidden;
+    BOOL _viewHasAppearedInitially;
+    
+    
+    BOOL _controlsHidden;
+    NSTimer *_controlVisibilityTimer;
+    
+    
+    BOOL _didSavePreviousStateOfNavBar;
+    BOOL _previousNavBarHidden;
+    BOOL _previousNavBarTranslucent;
+    UIBarStyle _previousNavBarStyle;
+    UIStatusBarStyle _previousStatusBarStyle;
+    UIColor *_previousNavBarTintColor;
+    UIColor *_previousNavBarBarTintColor;
+    UIBarButtonItem *_previousViewControllerBackButton;
+    UIImage *_previousNavigationBarBackgroundImageDefault;
+    UIImage *_previousNavigationbarBackgroundImageLandscapePhone;
+
 }
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) NSMutableSet *visibleArray;//image in window
 @property (nonatomic, strong) NSMutableArray *photosArray;
+@property (nonatomic, assign) NSInteger delayToHideElements;
 @end
 
 @implementation ZCPhotoViewController
@@ -38,6 +58,7 @@
 {
     UIStoryboard *storybord = [UIStoryboard storyboardWithName:@"Photo" bundle:nil];
     ZCPhotoViewController *photoViewCon = [storybord instantiateViewControllerWithIdentifier:NSStringFromClass([self class])];
+    [photoViewCon _initialisation];
     return photoViewCon;
 }
 - (instancetype)init
@@ -50,20 +71,20 @@
 }
 - (void)viewDidLoad
 {
-    [self _initialisation];
-    if (!self.scrollView) {
-        self.scrollView = [[UIScrollView alloc] init];
-        self.scrollView.frame = [self frameOfScrollView];
-        self.scrollView.delegate = self;
-        [self.scrollView setContentSize:[self contentSizeOfScrollView]];
-        self.scrollView.pagingEnabled = YES;
-        [self.scrollView setBackgroundColor:[UIColor redColor]];
-        self.scrollView.showsHorizontalScrollIndicator = NO;
-        self.scrollView.showsVerticalScrollIndicator = NO;
-        self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        [self.view addSubview:self.scrollView];
+    self.view.clipsToBounds = YES;
+    self.view.backgroundColor = [UIColor blackColor];
 
-    }
+    CGRect pagingScrollViewFrame = [self frameOfScrollView];
+    self.scrollView = [[UIScrollView alloc] initWithFrame:pagingScrollViewFrame];
+    self.scrollView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    self.scrollView.pagingEnabled = YES;
+    self.scrollView.delegate = self;
+    self.scrollView.showsHorizontalScrollIndicator = NO;
+    self.scrollView.showsVerticalScrollIndicator = NO;
+    self.scrollView.backgroundColor  = [UIColor blackColor];
+    self.scrollView.contentSize = [self contentSizeOfScrollView];
+    [self.view addSubview:self.scrollView];
+
 
     [self reloadData];
     [super viewDidLoad];
@@ -71,8 +92,7 @@
 
 - (void)_initialisation
 {
-    self.view.clipsToBounds = YES;
-    
+
     NSNumber *isVCBasedStatusBarAppearanceNum = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIVIewControllerBasedStatusBarAppearance"];
     if (isVCBasedStatusBarAppearanceNum) {
         _isVCBasedStatusBarAppearance = isVCBasedStatusBarAppearanceNum.boolValue;
@@ -80,15 +100,19 @@
     {
         _isVCBasedStatusBarAppearance = YES;
     }
-    
+    self.hidesBottomBarWhenPushed = YES;
     _previousLayoutBounds = CGRectZero;
     _performingLaout = NO;
     _skipNextPageingScrollViewPositioning = YES;
     _willLayoutSubviews = NO;
-//    self.navigationController.navigationBar.translucent = YES;
+    self.navigationController.navigationBar.translucent = YES;
     _visibleArray = [[NSMutableSet alloc] init];
     _isViewActive = NO;
     _statusBarShouldBeHidden = NO;
+    _delayToHideElements = 5.f;
+    _controlsHidden = NO;
+    _didSavePreviousStateOfNavBar = NO;
+    self.automaticallyAdjustsScrollViewInsets = NO;
 }
 - (void)viewDidAppear:(BOOL)animated
 {
@@ -98,11 +122,61 @@
 {
     [super viewWillAppear:animated];
     
+    if (!_viewHasAppearedInitially) {
+        _leaveStatusBarAlone = [self presentingVIewCOntrollerPrefersStatusBarHidden];
+        if (CGRectEqualToRect([[UIApplication sharedApplication] statusBarFrame], CGRectZero)) {
+            _leaveStatusBarAlone = YES;
+        }
+    }
+    
+    if (!_leaveStatusBarAlone && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+        _previousStatusBarStyle = [[UIApplication sharedApplication] statusBarStyle];
+        [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:animated];
+    }
+    if (!_isViewActive && [self.navigationController.viewControllers objectAtIndex:0]!=self) {
+        [self storePreviousNavBarAppearance];
+    }
+    
+    [self setNavBarAppearance:animated];
+    [self hideControlsAfterDelay];
     [self jumpImageToPageAtIndex:_selectedIndex WithAnimation:NO];
+
 }
-- (void)viewDidDisappear:(BOOL)animated
+- (void)viewWillDisappear:(BOOL)animated
 {
-    [super viewDidDisappear:animated];
+    if ([self.navigationController.viewControllers objectAtIndex:0]!=self && ![self.navigationController.viewControllers containsObject:self]) {
+        _isViewActive = NO;
+        [self restorePreviousNavBarAppearance:animated];
+    }
+    [self.navigationController.navigationBar.layer removeAllAnimations];
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [self setControlsHidden:NO animated:NO];
+    
+    if (!_leaveStatusBarAlone && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+        [[UIApplication sharedApplication] setStatusBarStyle:_previousStatusBarStyle animated:animated];
+    }
+    
+    [super viewWillDisappear:animated];
+}
+
+
+- (BOOL)presentingVIewCOntrollerPrefersStatusBarHidden
+{
+    UIViewController *presenting = self.presentingViewController;
+    if (presenting) {
+        if ([presenting isKindOfClass:[UINavigationController class]]) {
+            presenting = [(UINavigationController *)presenting topViewController];
+        }
+    }else{
+        if (self.navigationController && self.navigationController.viewControllers.count > 1) {
+            presenting = [self.navigationController.viewControllers objectAtIndex:self.navigationController.viewControllers.count - 2];
+        }
+    }
+    if (presenting) {
+        return [presenting prefersStatusBarHidden];
+    }else{
+        return NO;
+    }
 }
 - (void)reloadData
 {
@@ -114,12 +188,26 @@
     [self resetPhotosArray];
     if ([self isViewLoaded])
     {
-        _performingLaout = YES;
+       
+        /*_performingLaout = YES;
         [self.scrollView setContentOffset:[self contentOffsetForPageAtIndex:_selectedIndex]];
         [self preLoadPages];
         _performingLaout = NO;
+         */
+        while (_scrollView.subviews.count) {
+            [[[_scrollView subviews]lastObject] removeFromSuperview];
+        }
+        [self performLayout];
         [self.view setNeedsLayout];
     }
+}
+- (void)performLayout
+{
+    _performingLaout = YES;
+    [_visibleArray removeAllObjects];
+    _scrollView.contentOffset = [self contentOffsetForPageAtIndex:_selectedIndex];
+    [self preLoadPages];
+    _performingLaout = NO;
 }
 #pragma mark --- layout
 - (void)viewWillLayoutSubviews
@@ -153,16 +241,17 @@
             _previousLayoutBounds = self.view.bounds;
         }
     }
-    
-//    self.scrollView.contentOffset = [self contentOffsetForPageAtIndex:pageIndex];
-//    [self didStartPagingViewAtIndex:_selectedIndex];
     _selectedIndex = pageIndex;
     _performingLaout = NO;
 }
-#pragma mark -- controls
+#pragma mark -- controls showing/Hiding
 - (BOOL)prefersStatusBarHidden
 {
-    return _statusBarShouldBeHidden;
+    if (!_leaveStatusBarAlone) {
+        return _statusBarShouldBeHidden;
+    }else{
+        return [self presentingVIewCOntrollerPrefersStatusBarHidden];
+    }
 }
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
@@ -178,7 +267,8 @@
     if (![self numberOfPhotosInBrowser]) {
         hidden = NO;
     }
-    CGFloat animationOffset = 20;
+    [self cancleControlHiding];
+//    CGFloat animationOffset = 20;
     CGFloat animationDuration = animated? 0.35f:0;
     
     
@@ -193,21 +283,41 @@
         }];
     }
     
-//    if (!hidden && animated) {
-//     
-//        for (ZCScrollView *page in _visibleArray) {
-//            
-//        }
-//    }
-    
     [UIView animateWithDuration:animationDuration animations:^{
         CGFloat alpha = hidden ? 0 : 1;
+        _controlsHidden = hidden;
         [self.navigationController.navigationBar setAlpha:alpha];
     }completion:^(BOOL finished){
         
     }];
 }
 
+- (void)cancleControlHiding
+{
+    if (_controlVisibilityTimer) {
+        [_controlVisibilityTimer invalidate];
+        _controlVisibilityTimer = nil;
+    }
+}
+- (void)hideControlsAfterDelay
+{
+    if (!_controlsHidden) {
+        [self cancleControlHiding];
+        _controlVisibilityTimer = [NSTimer scheduledTimerWithTimeInterval:_delayToHideElements target:self selector:@selector(hideControls) userInfo:nil repeats:NO];
+    }
+}
+- (void)showControls
+{
+    [self setControlsHidden:NO animated:YES];
+}
+- (void)hideControls
+{
+    [self setControlsHidden:YES animated:YES];
+}
+- (void)toggleControls
+{
+    [self setControlsHidden:!_controlsHidden animated:YES];
+}
 #pragma mark ---  pages
 
 - (void)preLoadPages
@@ -258,6 +368,7 @@
     if (index < [self numberOfPhotosInBrowser]) {
         CGPoint contentOffset = [self contentOffsetForPageAtIndex:index];
         [self.scrollView setContentOffset:contentOffset animated:NO];
+        [self updateNavigation];
     }
 }
 - (void)didStartPagingViewAtIndex:(NSUInteger)index
@@ -299,6 +410,7 @@
     page.frame = [self frameForPageAtIndex:index];
     page.photo = [_delegate photoBrowser:self atIndexPath:index];
     page.index = index;
+    page.photoBrowser = self;
 }
 
 - (BOOL)isDisplayingPageAtIndex:(NSInteger)index
@@ -348,36 +460,37 @@
 
 
 #pragma mark -- frame & size
+- (CGRect)frameOfScrollView
+{
+    CGRect boundsRect = self.view.bounds;
+    boundsRect.origin.x -= Padding;
+    boundsRect.size.width += (2 * Padding);
+    return CGRectIntegral(boundsRect);
+}
 - (CGRect)frameForPageAtIndex:(NSUInteger) index
 {
-    CGRect bounds = self.scrollView.bounds;
+    CGRect bounds = _scrollView.bounds;
     CGRect pageFrame = bounds;
-//    pageFrame.origin.y = 0;
     pageFrame.size.width -= (2 * Padding);
     pageFrame.origin.x = (bounds.size.width * index) + Padding;
     return CGRectIntegral(pageFrame);
 }
-- (CGRect)frameOfScrollView
+- (CGSize)contentSizeOfScrollView
 {
-    CGRect boundsRect = [[UIScreen mainScreen] bounds];//self.view.bounds;
-    boundsRect.origin.x -= Padding;
-    boundsRect.size.width += (2 * Padding);
-    return boundsRect;
+    CGSize contentSize ;
+    CGRect scrollViewFrame = self.scrollView.bounds;
+    
+    contentSize = CGSizeMake(scrollViewFrame.size.width * [self numberOfPhotosInBrowser], scrollViewFrame.size.height);
+    return contentSize;
 }
+
 - (CGPoint)contentOffsetForPageAtIndex:(NSInteger)index
 {
     CGFloat pageWidth = self.scrollView.bounds.size.width;
     CGPoint offsetPoint = CGPointMake(pageWidth * index, 0);
     return offsetPoint;
 }
-- (CGSize)contentSizeOfScrollView
-{
-    CGSize contentSize ;
-    CGRect scrollViewFrame = self.scrollView.bounds;//[self frameOfScrollView];
-    
-    contentSize = CGSizeMake(scrollViewFrame.size.width * [self numberOfPhotosInBrowser], scrollViewFrame.size.height);//scrollViewFrame.size.height);
-    return contentSize;
-}
+
 #pragma mark -- data
 - (NSInteger)numberOfPhotosInBrowser
 {
@@ -438,5 +551,61 @@
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
     [self setControlsHidden:YES animated:YES];
+}
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
+{
+    [self updateNavigation];
+}
+#pragma mark -- Nav Bar Appearance
+- (void)setNavBarAppearance:(BOOL)animated
+{
+    [self.navigationController setNavigationBarHidden:NO animated:animated];
+    UINavigationBar *navBar = self.navigationController.navigationBar;
+    navBar.tintColor = [UIColor whiteColor];
+    navBar.barTintColor = nil;
+    navBar.shadowImage = nil;
+    navBar.translucent = YES;
+    navBar.barStyle = UIBarStyleBlackTranslucent;
+    [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsDefault];
+    [navBar setBackgroundImage:nil forBarMetrics:UIBarMetricsLandscapePhone];
+}
+- (void)storePreviousNavBarAppearance
+{
+    _didSavePreviousStateOfNavBar = YES;
+    _previousNavBarHidden = self.navigationController.navigationBar.hidden;
+    _previousNavBarTranslucent = self.navigationController.navigationBar.translucent;
+    _previousNavBarStyle = self.navigationController.navigationBar.barStyle;
+    _previousNavBarTintColor = self.navigationController.navigationBar.tintColor;
+    _previousNavBarBarTintColor = self.navigationController.navigationBar.barTintColor;
+    _previousNavigationBarBackgroundImageDefault = [self.navigationController.navigationBar backgroundImageForBarMetrics:UIBarMetricsDefault];
+    _previousNavigationbarBackgroundImageLandscapePhone = [self.navigationController.navigationBar backgroundImageForBarMetrics:UIBarMetricsLandscapePhone];
+}
+- (void)restorePreviousNavBarAppearance:(BOOL)animated
+{
+    if (_didSavePreviousStateOfNavBar) {
+        [self.navigationController setNavigationBarHidden:_previousNavBarHidden animated:animated];
+        UINavigationBar *navBar = self.navigationController.navigationBar;
+        navBar.tintColor = _previousNavBarTintColor;
+        navBar.translucent = _previousNavBarTranslucent;
+        navBar.barTintColor = _previousNavBarBarTintColor;
+        navBar.barStyle = _previousNavBarStyle;
+        [navBar setBackgroundImage:_previousNavigationBarBackgroundImageDefault forBarMetrics:UIBarMetricsDefault];
+        [navBar setBackgroundImage:_previousNavigationbarBackgroundImageLandscapePhone forBarMetrics:UIBarMetricsLandscapePhone];
+    }
+}
+#pragma mark -- navigation
+- (void)updateNavigation
+{
+    NSUInteger photoCount = [self numberOfPhotosInBrowser];
+    if (photoCount > 1) {
+        if ([_delegate respondsToSelector:@selector(photoBrowser:titleForPhotoAtIndex:)]) {
+            self.title = [_delegate photoBrowser:self titleForPhotoAtIndex:_selectedIndex];
+        }else{
+            self.title = [NSString stringWithFormat:@"%lu of %lu",(unsigned long)(_selectedIndex + 1),(unsigned long)photoCount];
+        }
+    }else
+    {
+        self.title = nil;
+    }
 }
 @end
