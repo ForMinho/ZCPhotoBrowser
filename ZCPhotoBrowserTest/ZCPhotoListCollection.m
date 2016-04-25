@@ -17,6 +17,7 @@ static CGSize imageSizeWithScale;
 }
 @property (nonatomic, assign) CGRect  previosPreheatRect;
 @property (nonatomic, strong) NSMutableArray *photosArray;
+@property (nonatomic, strong) NSMutableSet *selectedSet;
 @end
 
 @implementation ZCPhotoListCollection
@@ -24,9 +25,13 @@ static CGSize imageSizeWithScale;
 {
     UIStoryboard *board = [UIStoryboard storyboardWithName:@"Photo" bundle:nil];
     ZCPhotoListCollection *listCollection = [board instantiateViewControllerWithIdentifier:NSStringFromClass([self class])];
+    [listCollection _initialisation];
     return listCollection;
 }
-
+- (void)_initialisation
+{
+    _isImageCanSelect = YES;
+}
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -44,15 +49,18 @@ static CGSize imageSizeWithScale;
     self.collectionView.backgroundColor = [UIColor whiteColor];
     [self.collectionView registerNib:[UINib nibWithNibName:@"PhotoCell" bundle:nil] forCellWithReuseIdentifier:NSStringFromClass([ZCPhotoListCell class])];
     [self photosArrayWithFetchResult];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(collectionViewShouldSelectedPhotoAtIndexWithNotification:) name:ZCPhotoCollection_Selected_Photo object:nil];
 }
 - (void)viewWillAppear:(BOOL)animated
 {
+    [super viewWillAppear:animated];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(photoLibraryChangedWithNotification:) name:ZCPhotoLibrary_Changed object:nil];
 }
 - (void)viewWillDisappear:(BOOL)animated
 {
     [super viewWillDisappear:animated];
     [[NSNotificationCenter defaultCenter] removeObserver:self name:ZCPhotoLibrary_Changed object:nil];
+    NSLog(@"%@",_selectedSet);
 }
 - (void)photosArrayWithFetchResult
 {
@@ -66,7 +74,6 @@ static CGSize imageSizeWithScale;
             if ((asset.pixelHeight / asset.pixelWidth ) > 4) {
                 size = CGSizeMake(size.width/scale, size.height/2);
             }
-
             ZCPhoto *photo = [ZCPhoto photoWithAsset:asset ImageSize:size];
             [_photosArray addObject:photo];
         }
@@ -83,7 +90,11 @@ static CGSize imageSizeWithScale;
     ZCPhotoListCell *cell = (ZCPhotoListCell *)[collectionView dequeueReusableCellWithReuseIdentifier:NSStringFromClass([ZCPhotoListCell class]) forIndexPath:indexPath];
     cell.image.image = nil;
     ZCPhoto *photo = _photosArray[indexPath.row];
-    [cell updatePhotoCellWithPhoto:photo WithImageSize:imageSizeWithScale];
+    __weak ZCPhotoListCollection *weakSelf = self;
+    [cell updatePhotoCellWithPhoto:photo WithImageSize:imageSizeWithScale withPhotoSelectedHandle:^(ZCPhoto *photo,BOOL isSelected){
+        [weakSelf changeSelectedSetWithPhoto:photo WithSelected:isSelected];
+    }];
+    cell.selectedBtn.hidden = !_isImageCanSelect;
     if ([photo photoImage]) {
         cell.image.image = [photo photoImage];
     }else{
@@ -100,7 +111,7 @@ static CGSize imageSizeWithScale;
 {
     ZCPhotoViewController *photoViewCon = [ZCPhotoViewController sharedZCPhotoViewController];
     photoViewCon.delegate = self;
-  
+//    photoViewCon.autoHideControls = NO;
     [self.navigationController pushViewController:photoViewCon animated:YES];
       photoViewCon.selectedIndex = indexPath.row;
     
@@ -189,22 +200,51 @@ static CGSize imageSizeWithScale;
 }
 - (id)photoBrowser:(ZCPhotoViewController *)viewController atIndexPath:(NSInteger)index
 {
-    if (!self.fetchResult.count) {
+    if (!_photosArray.count) {
         return nil;
     }
     if (index < 0) {
         index = 0;
     }
-    if ( index >= [self.fetchResult count]) {
-        index = self.fetchResult.count - 1;
+    if ( index >= [_photosArray count]) {
+        index = _photosArray.count - 1;
     }
     static CGSize imageSize;
     if (imageSize.width == 0 && imageSize.height == 0) {
         imageSize.width = CGRectGetWidth(self.view.frame) * scale;
         imageSize.height = CGRectGetHeight(self.view.frame) * scale;
     }
-    ZCPhoto *photo = [ZCPhoto photoWithAsset:self.fetchResult[index] ImageSize:imageSize];
+    ZCPhoto *thumbPhoto = _photosArray[index];
+    ZCPhoto *photo = [ZCPhoto photoWithAsset:thumbPhoto.asset ImageSize:imageSize];
+    photo.isPhotoSelected = thumbPhoto.isPhotoSelected;
     return photo;
+}
+- (void)photoBrowser:(ZCPhotoViewController *)viewController selectedPhoto:(ZCPhoto *)photo AtIndex:(NSInteger)index
+{
+    if (index < _photosArray.count) {
+        ZCPhoto *thumbPhoto = _photosArray[index];
+        thumbPhoto.isPhotoSelected = photo.isPhotoSelected;
+        NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
+        BOOL currentVisible = NO;
+        NSArray *visibleArray = [self.collectionView indexPathsForVisibleItems];
+        for (NSIndexPath *path in visibleArray) {
+            if ([path isEqual:indexPath]) {
+                currentVisible = YES;
+                break;
+            }
+        }
+        
+        ZCPhotoListCell *cell = (ZCPhotoListCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
+        cell.selectedBtn.selected = photo.isPhotoSelected;
+    }
+}
+- (NSString *)photoBrowser:(ZCPhotoViewController *)viewController titleForPhotoAtIndex:(NSUInteger)index
+{
+    NSString *title = nil;
+    PHAsset *asset = self.fetchResult[index];
+    title = asset.localIdentifier;
+
+    return title;
 }
 
 #pragma mark -- Notification
@@ -221,6 +261,34 @@ static CGSize imageSizeWithScale;
     }
     if (!isDisplay) {
         [photo cancelLoadImage];
+    }
+}
+- (void)collectionViewShouldSelectedPhotoAtIndexWithNotification:(NSNotification *)notification
+{
+    NSUInteger index = [notification.object integerValue];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForItem:index inSection:0];
+    NSArray *visibleArray = [self.collectionView indexPathsForVisibleItems];
+    BOOL currentVisible = NO;
+    for (NSIndexPath *tempPath in visibleArray) {
+        if ([tempPath isEqual: indexPath]) {
+            currentVisible = YES;
+            break;
+        }
+    }
+    if (!currentVisible) {
+        [self.collectionView scrollToItemAtIndexPath:indexPath atScrollPosition:UICollectionViewScrollPositionNone animated:NO];
+    }
+}
+
+#pragma mark -- Block
+- (void)changeSelectedSetWithPhoto:(ZCPhoto *)photo WithSelected:(BOOL)isSelected
+{
+    if (_selectedSet == nil) {
+        _selectedSet = [[NSMutableSet alloc] init];
+    }
+    [_selectedSet minusSet:[NSSet setWithObject:photo]];
+    if (isSelected) {
+        [_selectedSet addObject:photo];
     }
 }
 @end

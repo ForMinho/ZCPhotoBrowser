@@ -32,6 +32,7 @@
 {
     ZCPhotoListCollection *list = [ZCPhotoListCollection zcPhtoListCollection];
     list.fetchResult = result;
+//    list.isImageCanSelect = NO;
     if (viewController.navigationController) {
         [viewController.navigationController pushViewController:list animated:YES];
     }else

@@ -92,7 +92,6 @@
 
 - (void)_initialisation
 {
-
     NSNumber *isVCBasedStatusBarAppearanceNum = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"UIVIewControllerBasedStatusBarAppearance"];
     if (isVCBasedStatusBarAppearanceNum) {
         _isVCBasedStatusBarAppearance = isVCBasedStatusBarAppearanceNum.boolValue;
@@ -112,6 +111,7 @@
     _delayToHideElements = 5.f;
     _controlsHidden = NO;
     _didSavePreviousStateOfNavBar = NO;
+    _autoHideControls = YES;
     self.automaticallyAdjustsScrollViewInsets = NO;
 }
 - (void)viewDidAppear:(BOOL)animated
@@ -121,7 +121,6 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    
     if (!_viewHasAppearedInitially) {
         _leaveStatusBarAlone = [self presentingVIewCOntrollerPrefersStatusBarHidden];
         if (CGRectEqualToRect([[UIApplication sharedApplication] statusBarFrame], CGRectZero)) {
@@ -156,6 +155,7 @@
         [[UIApplication sharedApplication] setStatusBarStyle:_previousStatusBarStyle animated:animated];
     }
     
+    [[NSNotificationCenter defaultCenter] postNotificationName:ZCPhotoCollection_Selected_Photo object:@(_selectedIndex)];
     [super viewWillDisappear:animated];
 }
 
@@ -188,12 +188,6 @@
     [self resetPhotosArray];
     if ([self isViewLoaded])
     {
-       
-        /*_performingLaout = YES;
-        [self.scrollView setContentOffset:[self contentOffsetForPageAtIndex:_selectedIndex]];
-        [self preLoadPages];
-        _performingLaout = NO;
-         */
         while (_scrollView.subviews.count) {
             [[[_scrollView subviews]lastObject] removeFromSuperview];
         }
@@ -264,7 +258,7 @@
 
 - (void)setControlsHidden:(BOOL)hidden animated:(BOOL)animated
 {
-    if (![self numberOfPhotosInBrowser]) {
+    if (![self numberOfPhotosInBrowser] || !_autoHideControls) {
         hidden = NO;
     }
     [self cancleControlHiding];
@@ -287,6 +281,16 @@
         CGFloat alpha = hidden ? 0 : 1;
         _controlsHidden = hidden;
         [self.navigationController.navigationBar setAlpha:alpha];
+        
+        for (ZCScrollView *page in _visibleArray) {
+            if (page.selectedButton) {
+                UIButton *v = page.selectedButton;
+                CGRect newFrame = [self frameForPageSelectedButton:v atIndex:page.index];
+                v.frame = newFrame;
+            }
+        }
+        
+        
     }completion:^(BOOL finished){
         
     }];
@@ -356,6 +360,7 @@
         if (![self isDisplayingPageAtIndex:i]) {
             ZCScrollView *page = [[ZCScrollView alloc] init];
             [self configuePage:page AtIndex:i];
+            page.selectedButton.frame = [self frameForPageSelectedButton:page.selectedButton atIndex:i];
             [self.scrollView addSubview:page];
             [_visibleArray addObject:page];
         }
@@ -411,6 +416,7 @@
     page.photo = [_delegate photoBrowser:self atIndexPath:index];
     page.index = index;
     page.photoBrowser = self;
+    
 }
 
 - (BOOL)isDisplayingPageAtIndex:(NSInteger)index
@@ -490,7 +496,18 @@
     CGPoint offsetPoint = CGPointMake(pageWidth * index, 0);
     return offsetPoint;
 }
-
+- (CGRect)frameForPageSelectedButton:(UIButton *)selectedButton atIndex:(NSUInteger)index
+{
+    CGRect pageFrame = [self frameForPageAtIndex:index];
+    CGFloat padding = 20;
+    CGFloat yOffset = 0;
+    if (!_controlsHidden) {
+        UINavigationBar *bar = self.navigationController.navigationBar;
+        yOffset = bar.frame.origin.y + bar.frame.size.height;
+    }
+    CGRect selectedFrame = CGRectMake(pageFrame.size.width - CGRectGetWidth(selectedButton.frame) - padding, yOffset + padding, CGRectGetWidth(selectedButton.frame), CGRectGetHeight(selectedButton.frame));
+    return CGRectIntegral(selectedFrame);
+}
 #pragma mark -- data
 - (NSInteger)numberOfPhotosInBrowser
 {
@@ -607,5 +624,13 @@
     {
         self.title = nil;
     }
+}
+#pragma mark -- selected Button 
+- (void)photoSelectedWithPhoto:(ZCPhoto *)photo atIndex:(NSUInteger)index
+{
+    if (index < [self numberOfPhotosInBrowser] && [_delegate respondsToSelector:@selector(photoBrowser:selectedPhoto:AtIndex:)]) {
+        [_delegate photoBrowser:self selectedPhoto:photo AtIndex:index];
+    }
+
 }
 @end

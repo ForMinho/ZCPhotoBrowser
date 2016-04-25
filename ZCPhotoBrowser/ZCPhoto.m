@@ -10,7 +10,7 @@
 @interface ZCPhoto()
 @property (nonatomic, strong) UIImage *image;
 
-@property (nonatomic, strong) PHAsset *asset;
+
 @property (nonatomic, assign) CGSize imageSize;
 @property (nonatomic, assign) PHImageRequestID imageRequestID;
 
@@ -33,6 +33,7 @@
             imageSize.height = asset.pixelHeight;
         }
         self.imageSize = imageSize;
+        self.isPhotoSelected = NO;
     }
     return self;
 }

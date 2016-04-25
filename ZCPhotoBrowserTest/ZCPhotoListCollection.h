@@ -7,8 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#define ZCPhotoCollection_Selected_Photo @"ZCPhotoCollection_Selected_Photo"
 @class ZCRootCollectionViewController;
 @interface ZCPhotoListCollection : ZCRootCollectionViewController
 @property (nonatomic , strong) PHFetchResult *fetchResult;
+@property (nonatomic, assign) BOOL isImageCanSelect;
 + (ZCPhotoListCollection *)zcPhtoListCollection;
 @end

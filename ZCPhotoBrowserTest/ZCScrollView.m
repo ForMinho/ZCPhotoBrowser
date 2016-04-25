@@ -50,6 +50,13 @@
     _photoView.backgroundColor = [UIColor whiteColor];
     [self addSubview:_photoView];
 
+    frame.origin = CGPointZero;
+    frame.size.width = frame.size.height = 44;
+    _selectedButton = [[UIButton alloc] initWithFrame:frame];
+    [_selectedButton setImage:[UIImage imageNamed:@"ImageSelectedOff"] forState:UIControlStateNormal];
+    [_selectedButton setImage:[UIImage imageNamed:@"ImageSelectedOn"] forState:UIControlStateSelected];
+    [_selectedButton addTarget:self action:@selector(changePhotoImageSelected) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:_selectedButton];
 }
 - (void)dealloc
 {
@@ -70,6 +77,7 @@
     }
     _photo = photo;
     [self startLoadingImage];
+    _selectedButton.selected = _photo.isPhotoSelected;
 }
 - (void)displayImage
 {
@@ -134,7 +142,6 @@
         CGFloat xScale = boundsSize.width / imageSize.width;
         CGFloat yScale = boundsSize.height / imageSize.height;
         
-        
         if (fabs(boundsAR - imageAR) < 0.17) {
             zoomScale = MAX(xScale, yScale);
             zoomScale = MIN(MAX(self.minimumZoomScale,zoomScale), self.maximumZoomScale);
@@ -164,6 +171,7 @@
     if (!CGRectEqualToRect(_photoView.frame, frameToCenter)) {
         _photoView.frame = frameToCenter;
     }
+    
 }
 #pragma mark -- ScrollViewDelegate
 
@@ -248,5 +256,13 @@
 - (void)view:(UIView *)view tripleTapDetected:(UITouch *)touch
 {
     
+}
+
+#pragma mark -- button Delegate
+- (void)changePhotoImageSelected
+{
+    _selectedButton.selected = !_selectedButton.selected;
+    _photo.isPhotoSelected = _selectedButton.selected;
+    [self.photoBrowser photoSelectedWithPhoto:_photo atIndex:self.index];
 }
 @end

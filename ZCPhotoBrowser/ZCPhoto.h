@@ -9,10 +9,12 @@
 #import <Foundation/Foundation.h>
 
 @interface ZCPhoto : NSObject
-
+@property (nonatomic, assign) BOOL  isPhotoSelected;
+@property (nonatomic, strong) PHAsset *asset;
 + (instancetype) photoWithAsset:(PHAsset *)asset ImageSize:(CGSize)imageSize;
 
 - (void)loadImageAndNotification;
 - (void)cancelLoadImage;
 - (UIImage *)photoImage;
+
 @end

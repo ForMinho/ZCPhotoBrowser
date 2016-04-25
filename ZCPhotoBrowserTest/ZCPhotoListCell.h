@@ -8,14 +8,14 @@
 
 #import <UIKit/UIKit.h>
 #import "ZCPhotoKit.h"
+typedef void(^ZCPhotoSelectedHandle)(ZCPhoto *photo,BOOL isSelected);
 @interface ZCPhotoListCell : UICollectionViewCell
 @property (nonatomic, weak) IBOutlet UIImageView *image;
-//@property (nonatomic, strong) PHAsset *cellAsset;
-//@property (nonatomic, copy) NSString *localIdentifier;
-
+@property (nonatomic, weak) IBOutlet UIButton *selectedBtn;
 
 @property (nonatomic, strong) ZCPhoto *photo;
 
-- (void)updatePhotoCellWithPhoto:(ZCPhoto*)photo WithImageSize:(CGSize)imageSize;
+- (void)updatePhotoCellWithPhoto:(ZCPhoto*)photo WithImageSize:(CGSize)imageSize withPhotoSelectedHandle:(ZCPhotoSelectedHandle)selectedHandle;
+- (IBAction)selectedBtnClicked:(id)sender;
 @end
 

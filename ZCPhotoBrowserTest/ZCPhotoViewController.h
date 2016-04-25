@@ -12,16 +12,20 @@
 @required
 - (NSInteger)numberOfPhotosInBrowser:(ZCPhotoViewController *)photoController;
 - (id)photoBrowser:(ZCPhotoViewController *)viewController atIndexPath:(NSInteger)index;
-
+- (void)photoBrowser:(ZCPhotoViewController *)viewController selectedPhoto:(ZCPhoto *)photo AtIndex:(NSInteger)index;
 @optional
 - (NSString *)photoBrowser:(ZCPhotoViewController *)viewController titleForPhotoAtIndex:(NSUInteger)index;
+
 @end
 
 @interface ZCPhotoViewController : UIViewController
 @property (nonatomic, assign) NSInteger selectedIndex;
 @property (nonatomic, assign) id<ZCPhotoViewControllerDelegate> delegate;
+@property (nonatomic, assign) BOOL autoHideControls;
+
 + (instancetype)sharedZCPhotoViewController;
 - (void)cancleControlHiding;
 - (void)hideControlsAfterDelay;
 - (void)toggleControls;
+- (void)photoSelectedWithPhoto:(ZCPhoto *)photo atIndex:(NSUInteger)index;
 @end
