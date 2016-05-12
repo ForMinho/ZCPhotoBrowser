@@ -28,9 +28,16 @@
     // Dispose of any resources that can be recreated.
 }
 
-#pragma mark --
+#pragma mark -- TableView
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 2;
+}
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
+    if (section == 1) {
+        return 1;
+    }
     return self.photoArray.count;
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -39,14 +46,47 @@
     if (cell == nil) {
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
     }
+    if (indexPath.section == 1) {
+        cell.textLabel.text = @"Photos From Web";
+        return cell;
+    }
     cell.textLabel.text = [NSString stringWithFormat:@"%@(%ld)",self.titleArray[indexPath.row],(unsigned long)[self.photoArray[indexPath.row] count]];
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     [self.tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (indexPath.section == 1) {
+        NSMutableArray *photosArray = [NSMutableArray array];
+        [photosArray addObject:[ZCPhoto photowithUrlFromWeb:@"http://10.101.136.201/AppIconMaker/CartPlaceholder@2x.png"]];
+        [photosArray addObject:[ZCPhoto photowithUrlFromWeb:@"http://10.101.136.201/AppIconMaker/Fu733ONpoivUpcQ3LtM1iMNmfOSy.jpg/Fu733ONpoivUpcQ3LtM1iMNmfOSy.imageset/Fu733ONpoivUpcQ3LtM1iMNmfOSy@3x.png"]];
+        [photosArray addObject:[ZCPhoto photowithUrlFromWeb:@"http://10.101.136.201/AppIconMaker/SettleAccountsBalance@2x.png"]];
+        [photosArray addObject:[ZCPhoto photowithUrlFromWeb:@"http://10.101.136.201/AppIconMaker/btn_weibo_n@2x.png"]];
+        [photosArray addObject:[ZCPhoto photowithUrlFromWeb:@"http://10.101.136.201/AppIconMaker/btn_weixin_n@3x.png"]];
+        [ZCJudgeObject judgeToTheViewControllerWithObjects:photosArray FromViewController:self];
+        return;
+    }
     PHFetchResult *result = self.photoArray[indexPath.row];
     [ZCJudgeObject judgeToTheViewControllerWithObjects:result FromViewController:self];
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
+{
+    return 40;
+}
+- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
+{
+    switch (section) {
+        case 0:
+            return @"Library";
+            break;
+        case 1:
+            return @"Http Web";
+            break;
+        default:
+            break;
+    }
+    return nil;
 }
 #pragma mark --- Datas
 

@@ -10,11 +10,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ZCPhotoBrowserTest/ViewController.m"
-            timestampString = "481689694.43722"
+            timestampString = "484193584.298731"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "77"
-            endingLineNumber = "77"
+            startingLineNumber = "117"
+            endingLineNumber = "117"
             landmarkName = "-photoLibraryChangedWithNotification:"
             landmarkType = "5">
          </BreakpointContent>
@@ -26,11 +26,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ZCPhotoBrowserTest/ViewController.m"
-            timestampString = "481689807.73463"
+            timestampString = "484193584.298731"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "69"
-            endingLineNumber = "69"
+            startingLineNumber = "109"
+            endingLineNumber = "109"
             landmarkName = "-photoArray"
             landmarkType = "5">
          </BreakpointContent>
@@ -170,11 +170,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ZCPhotoBrowserTest/ZCPhotoViewController.m"
-            timestampString = "483006282.004428"
+            timestampString = "484197105.696983"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "158"
-            endingLineNumber = "158"
+            startingLineNumber = "160"
+            endingLineNumber = "160"
             landmarkName = "-viewWillDisappear:"
             landmarkType = "5">
          </BreakpointContent>
@@ -186,12 +186,28 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "ZCPhotoBrowserTest/ZCPhotoViewController.m"
-            timestampString = "483009560.666148"
+            timestampString = "484197105.696983"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "631"
-            endingLineNumber = "631"
+            startingLineNumber = "634"
+            endingLineNumber = "634"
             landmarkName = "-photoSelectedWithPhoto:atIndex:"
+            landmarkType = "5">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "ZCPhotoBrowserTest/ZCPhotoListCollection.m"
+            timestampString = "484194354.311163"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "89"
+            endingLineNumber = "89"
+            landmarkName = "-photosArrayWithFetchResult"
             landmarkType = "5">
          </BreakpointContent>
       </BreakpointProxy>

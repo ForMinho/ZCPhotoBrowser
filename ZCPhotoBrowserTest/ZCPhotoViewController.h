@@ -23,6 +23,7 @@
 @property (nonatomic, assign) id<ZCPhotoViewControllerDelegate> delegate;
 @property (nonatomic, assign) BOOL autoHideControls;
 
+@property (nonatomic, assign) BOOL imageCanSelect;//图片是否可以选择 default is NO
 + (instancetype)sharedZCPhotoViewController;
 - (void)cancleControlHiding;
 - (void)hideControlsAfterDelay;

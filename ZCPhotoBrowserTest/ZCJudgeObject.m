@@ -26,13 +26,17 @@
         PHFetchResult *result = [PHAsset fetchAssetsInAssetCollection:collection options:nil];
         [ZCJudgeObject jumpToPhotoListControllerWithObjects:result FromViewController:viewController];
     }
+    else if ([objects isKindOfClass:[NSArray class]])
+    {
+        [ZCJudgeObject jumpToPhotoListControllerWithObjects:objects FromViewController:viewController];
+    }
     
 }
-+ (void)jumpToPhotoListControllerWithObjects:(PHFetchResult*)result FromViewController:(UIViewController *)viewController
++ (void)jumpToPhotoListControllerWithObjects:(id)result FromViewController:(UIViewController *)viewController
 {
     ZCPhotoListCollection *list = [ZCPhotoListCollection zcPhtoListCollection];
-    list.fetchResult = result;
-//    list.isImageCanSelect = NO;
+    list.photosResource = result;
+    list.isImageCanSelect = NO;
     if (viewController.navigationController) {
         [viewController.navigationController pushViewController:list animated:YES];
     }else

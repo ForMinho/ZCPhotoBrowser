@@ -15,6 +15,7 @@ static CGSize imageSizeWithScale;
 {
     CGFloat scale;
 }
+@property (nonatomic, strong) PHFetchResult *fetchResult;
 @property (nonatomic, assign) CGRect  previosPreheatRect;
 @property (nonatomic, strong) NSMutableArray *photosArray;
 @property (nonatomic, strong) NSMutableSet *selectedSet;
@@ -64,18 +65,30 @@ static CGSize imageSizeWithScale;
 }
 - (void)photosArrayWithFetchResult
 {
-    if (self.fetchResult && self.fetchResult.count) {
-        if (_photosArray == nil) {
-            _photosArray = [[NSMutableArray alloc] initWithCapacity:self.fetchResult.count];
-        }
+    if (_photosArray == nil) {
+        _photosArray = [NSMutableArray array];
+    }
+    [_photosArray removeAllObjects];
+    
+    if ([_photosResource isKindOfClass:[PHFetchResult class]])
+    {
+        _fetchResult = (PHFetchResult *)_photosResource;
+        _photosResource = nil;
+
         CGSize size = CGSizeZero;
-        for (PHAsset *asset in self.fetchResult) {
+        for (PHAsset *asset in _fetchResult) {
             size = imageSizeWithScale;
             if ((asset.pixelHeight / asset.pixelWidth ) > 4) {
                 size = CGSizeMake(size.width/scale, size.height/2);
             }
             ZCPhoto *photo = [ZCPhoto photoWithAsset:asset ImageSize:size];
             [_photosArray addObject:photo];
+        }
+    }
+    if ([_photosResource isKindOfClass:[NSArray class]]) {
+        NSArray *tmpArray = (NSArray *)_photosResource;
+        if (tmpArray.firstObject && [tmpArray.firstObject isKindOfClass:[ZCPhoto class]]) {
+            [_photosArray addObjectsFromArray:tmpArray];
         }
     }
 }
@@ -100,6 +113,7 @@ static CGSize imageSizeWithScale;
     }else{
         [photo loadImageAndNotification];
     }
+    [cell.image setBackgroundColor:[UIColor redColor]];
     return cell;
 }
 - (void)collectionView:(UICollectionView *)collectionView didEndDisplayingCell:(UICollectionViewCell *)cell forItemAtIndexPath:(NSIndexPath *)indexPath
@@ -111,6 +125,7 @@ static CGSize imageSizeWithScale;
 {
     ZCPhotoViewController *photoViewCon = [ZCPhotoViewController sharedZCPhotoViewController];
     photoViewCon.delegate = self;
+    photoViewCon.imageCanSelect = YES;
 //    photoViewCon.autoHideControls = NO;
     [self.navigationController pushViewController:photoViewCon animated:YES];
       photoViewCon.selectedIndex = indexPath.row;
@@ -196,7 +211,7 @@ static CGSize imageSizeWithScale;
 #pragma mark -- ZCPhotoViewControllerDelegate
 - (NSInteger)numberOfPhotosInBrowser:(ZCPhotoViewController *)photoController
 {
-    return [self.fetchResult count];
+    return [_photosArray count];
 }
 - (id)photoBrowser:(ZCPhotoViewController *)viewController atIndexPath:(NSInteger)index
 {
@@ -215,7 +230,14 @@ static CGSize imageSizeWithScale;
         imageSize.height = CGRectGetHeight(self.view.frame) * scale;
     }
     ZCPhoto *thumbPhoto = _photosArray[index];
-    ZCPhoto *photo = [ZCPhoto photoWithAsset:thumbPhoto.asset ImageSize:imageSize];
+    ZCPhoto *photo = nil;
+    if (thumbPhoto.asset) {
+        photo = [ZCPhoto photoWithAsset:thumbPhoto.asset ImageSize:imageSize];
+    }else if (thumbPhoto.photoUrl)
+    {
+        photo = [ZCPhoto photowithUrlFromWeb:thumbPhoto.photoUrl];
+    }
+
     photo.isPhotoSelected = thumbPhoto.isPhotoSelected;
     return photo;
 }

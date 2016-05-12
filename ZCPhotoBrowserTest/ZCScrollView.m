@@ -65,9 +65,6 @@
 - (void)setImage:(UIImage *)image
 {
     _image = image;
-    if ((_image.size.width < self.frame.size.width) && (image.size.height < self.frame.size.height)) {
-        return;
-    }
     [self displayImage];
 }
 - (void) setPhoto:(id)photo
@@ -78,6 +75,15 @@
     _photo = photo;
     [self startLoadingImage];
     _selectedButton.selected = _photo.isPhotoSelected;
+}
+- (void)setImageCanSelect:(BOOL)imageCanSelect
+{
+    _imageCanSelect = imageCanSelect;
+    if (!imageCanSelect) {
+        [_selectedButton removeFromSuperview];
+        _selectedButton = nil;
+        
+    }
 }
 - (void)displayImage
 {

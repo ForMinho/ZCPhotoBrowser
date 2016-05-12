@@ -112,6 +112,8 @@
     _controlsHidden = NO;
     _didSavePreviousStateOfNavBar = NO;
     _autoHideControls = YES;
+    _imageCanSelect = NO;
+    _selectedIndex = 0;
     self.automaticallyAdjustsScrollViewInsets = NO;
 }
 - (void)viewDidAppear:(BOOL)animated
@@ -416,6 +418,7 @@
     page.photo = [_delegate photoBrowser:self atIndexPath:index];
     page.index = index;
     page.photoBrowser = self;
+    page.imageCanSelect = _imageCanSelect;
     
 }
 

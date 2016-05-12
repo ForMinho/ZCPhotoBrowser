@@ -7,12 +7,14 @@
 //
 
 #import "ZCPhoto.h"
+#import <SDWebImage/SDWebImageManager.h>
 @interface ZCPhoto()
 @property (nonatomic, strong) UIImage *image;
 
 
 @property (nonatomic, assign) CGSize imageSize;
 @property (nonatomic, assign) PHImageRequestID imageRequestID;
+
 
 @end
 @implementation ZCPhoto
@@ -21,7 +23,10 @@
 {
     return [[ZCPhoto alloc] initWithAsset:asset ImageSize:imageSize];
 }
-
++ (instancetype) photowithUrlFromWeb:(NSString *)webUrl;
+{
+    return [[ZCPhoto alloc] initWithPhotoUrl:webUrl];
+}
 #pragma mark ---
 - (id)initWithAsset:(PHAsset *)asset ImageSize:(CGSize)imageSize
 {
@@ -34,6 +39,14 @@
         }
         self.imageSize = imageSize;
         self.isPhotoSelected = NO;
+    }
+    return self;
+}
+- (id)initWithPhotoUrl:(NSString *)url
+{
+    self = [super init];
+    if (self) {
+        self.photoUrl = url;
     }
     return self;
 }
@@ -50,8 +63,9 @@
         [self loadingImageComplete];
         return;
     }
-    if (_asset) {
         __weak ZCPhoto *weakSelf = self;
+    if (_asset) {
+
       _imageRequestID = [[ZCImageManager sharedImageManager] requestImageWithAsset:_asset imageSize:_imageSize contentMode:PHImageContentModeAspectFill options:nil completeHandler:^(PHAsset *asset,UIImage *image,NSDictionary *info)
         {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -61,6 +75,17 @@
                 }
             });
             
+        }];
+    }
+    else if (_photoUrl) {
+        [[SDWebImageManager sharedManager] downloadImageWithURL:[NSURL URLWithString:_photoUrl]
+                                                        options:SDWebImageProgressiveDownload
+                                                       progress:nil
+                                                      completed:^(UIImage *image, NSError *error, SDImageCacheType cacheType, BOOL finished, NSURL *imageURL){
+            if ([imageURL.absoluteString isEqualToString:_photoUrl]) {
+                weakSelf.image = image;
+                [weakSelf loadingImageComplete];
+            }
         }];
     }
 }

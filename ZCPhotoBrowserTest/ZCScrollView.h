@@ -13,6 +13,7 @@
 @property (nonatomic, assign) NSUInteger index;
 @property (nonatomic, strong) ZCPhoto *photo;
 @property (nonatomic, weak) ZCPhotoViewController *photoBrowser;
+@property (nonatomic, assign) BOOL imageCanSelect;
 - (void)startLoadingImage;
 - (void)cancleLoadingImage;
 - (void)setMaxMinZoomScalesForImage;
